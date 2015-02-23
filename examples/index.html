@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>multi-timeline.js example</title>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+    <script src="../dest/multi-timeline.min.js"></script>
+
     <link rel="stylesheet" href="../dest/multi-timeline.min.css"/>
     <style>
         body {
@@ -13,6 +17,8 @@
 <body>
 
 <h1>multi-timeline.js example</h1>
+
+<div class="multi-timeline"></div>
 
 <div class="tl-wrapper">
     <div class="tl-timeline">
@@ -34,5 +40,13 @@
         <li class="tl-time__unit">2015-03-01</li>
     </ul>
 </div>
+<script>
+    $(function () {
+        $('.multi-timeline').multiTimeline({
+            start: '2015-02-23',
+            end: '2015-03-01'
+        });
+    })
+</script>
 </body>
 </html>

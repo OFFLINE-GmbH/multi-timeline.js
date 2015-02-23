@@ -1,31 +1,38 @@
 ;(function ( $, window, document, undefined ) {
 
-    var pluginName = "multi-timeline",
+    var pluginName = "multiTimeline",
         defaults = {
-            propertyName: "value"
+            propertyName: "value",
+            timelineTemplate: '<div class="tl-timeline">',
+            timeTemplate: '<ul class="tl-time">'
         };
 
-    function MultiTimline( element, options ) {
+    function multiTimeline( element, options ) {
         this.element = element;
+        this.$element = $(element);
         this.options = $.extend( {}, defaults, options) ;
         this._defaults = defaults;
         this._name = pluginName;
         this.init();
     }
 
-    MultiTimline.prototype = {
+    multiTimeline.prototype = {
 
         init: function() {
-            // Place initialization logic here
-            // You already have access to the DOM element and
-            // the options via the instance, e.g. this.element
-            // and this.options
-            // you can add more functions like the one below and
-            // call them like so: this.yourOtherFunction(this.element, this.options).
+            this
+                .createStructure()
+                .addTimelines()
         },
 
-        yourOtherFunction: function(el, options) {
-            // some logic
+        createStructure: function() {
+            this.$element.addClass('tl-wrapper');
+            $(this.options.timeTemplate).appendTo(this.$element);
+            return this;
+        },
+
+        addTimelines: function() {
+            $(this.options.timelineTemplate).prependTo(this.$element);
+            return this;
         }
     };
 
@@ -33,7 +40,7 @@
         return this.each(function () {
             if (!$.data(this, "plugin_" + pluginName)) {
                 $.data(this, "plugin_" + pluginName,
-                    new MultiTimline( this, options ));
+                    new multiTimeline( this, options ));
             }
         });
     };
