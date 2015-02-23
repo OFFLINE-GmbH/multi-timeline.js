@@ -12,10 +12,11 @@
     left: 0;
     bottom: 20px;
     padding: 5px;
-    width: 99%;
+    width: 100%;
     overflow: hidden;
     box-sizing: border-box;
     &__title {
+        color: #fff;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
