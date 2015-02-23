@@ -1,28 +1,50 @@
 module.exports = function (grunt) {
+
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        // concat: {
-        //     js: {
-        //         src: [
-        //               'src/js/html5shiv.min.js'
-        //             , 'src/js/pushy.js'
-        //             , 'src/js/app.js'
-        //         ],
-        //         dest: 'src/js/concatinated.js'
-        //     }
-        // },
+        concat: {
+            //js: {
+            //    src: [
+            //        'src/js/html5shiv.min.js'
+            //        , 'src/js/pushy.js'
+            //        , 'src/js/app.js'
+            //    ],
+            //    dest: 'src/js/concatinated.js'
+            //},
+        },
         uglify: {
             js: {
-                src: 'src/multi-timeline.js',
-                dest: 'build/multi-timeline.min.js'
+                src: 'src/js/multi-timeline.js',
+                dest: 'dest/multi-timeline.min.js'
             }
         },
         watch: {
+            options: {
+                livereload: true
+            },
             scripts: {
                 files: ['src/js/*.js'],
                 tasks: ['uglify'],
                 options: {
                     spawn: false
+                }
+            },
+            css: {
+                files: ['src/scss/*.scss'],
+                tasks: ['sass'],
+                options: {
+                    spawn: false
+                }
+            }
+        },
+        sass: {
+            dist: {
+                options: {
+                    'sourcemap=none': true,
+                    style: 'compressed'
+                },
+                files: {
+                    'dest/multi-timeline.min.css': 'src/scss/multi-timeline.scss'
                 }
             }
         }
@@ -32,7 +54,7 @@ module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
 
     // 4. Where we tell Grunt what to do when we type "grunt" into the terminal.
-    grunt.registerTask('default', ['uglify']);
+    grunt.registerTask('default', ['uglify', 'sass']);
     grunt.registerTask('dev', ['watch']);
 
 };
