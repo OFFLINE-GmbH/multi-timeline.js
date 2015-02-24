@@ -10,6 +10,8 @@
             timelineSpacing: 30,
             zoomStep: 1,
             maxLabelCount: 20,
+            infinity: '9999-12-31',
+            dawn: '0000-01-01',
             timelineClick: function (event, data) {
             }
         };
@@ -17,7 +19,6 @@
     function multiTimeline(element, options) {
         this.element = element;
         this.$element = $(element);
-        this.moment = moment || null;
         this.options = $.extend({}, defaults, options);
         this._defaults = defaults;
         this._name = pluginName;
@@ -34,16 +35,16 @@
                 return false;
             }
 
-            this._start = moment(this.options.start);
-            this._end = moment(this.options.end);
+            this._startMoment = moment(this.options.start);
+            this._endMoment = moment(this.options.end);
 
-            if (!this._end.isAfter(this._start)) {
+            if (!this._endMoment.isAfter(this._startMoment)) {
                 console.error('multi-timline.js: end date has to be a date after start date!');
                 return false;
             }
 
-            this._days = this.getDuration(this._start, this._end);
-            this._dayPercentage = 100 / (this._days + 1);
+            this._daysCount = this.getDuration(this._startMoment, this._endMoment);
+            this._percentagePerDay = 100 / (this._daysCount + 1);
 
             this._timelineCount = this.options.data.length;
 
@@ -51,7 +52,7 @@
                 .createStructure()
                 .addTimelines()
                 .addEventHandlers()
-                .setWrapperDimensions()
+                .setWrapperDimensions();
         },
 
         createStructure: function () {
@@ -64,8 +65,8 @@
 
         addMarks: function () {
 
-            var current = this._start;
-            var end = this._end.add(1, 'day');
+            var current = this._startMoment;
+            var end = this._endMoment.add(1, 'day');
 
             var $time = $('<ul class="tl-time">');
             var timeUnitCount = -1;
@@ -77,7 +78,7 @@
                 current = current.add(1, 'day');
                 label = current;
                 // write only every nth date to prevent overlap
-                if (this._days > 10 && timeUnitCount % Math.round(this._days / this.options.maxLabelCount) !== 0) {
+                if (this._daysCount > 10 && timeUnitCount % Math.round(this._daysCount / this.options.maxLabelCount) !== 0) {
                     label = '';
                 }
                 this.addTimeUnit($time, label, (timeUnitCount + 1));
@@ -93,7 +94,7 @@
             }
             $('<li class="tl-time__unit">')
                 .html(label)
-                .css({left: (position * this._dayPercentage) + '%'})
+                .css({left: (position * this._percentagePerDay) + '%'})
                 .append('<span>')
                 .appendTo($time);
         },
@@ -109,10 +110,18 @@
 
             $(this.options.data).each(function () {
                 var dataEntry = this;
+
+                if (dataEntry.end == undefined) {
+                    dataEntry.end = that.options.infinity;
+                }
+
+                if (dataEntry.start == undefined) {
+                    dataEntry.start = that.options.dawn;
+                }
+
                 var duration = that.getDuration(moment(dataEntry.start), moment(dataEntry.end));
                 var startOffset = that.getDuration(moment(that.options.start), moment(dataEntry.start));
                 var useLayer = (dataEntry.layer !== undefined) ? dataEntry.layer : layer;
-
 
                 // Check if timline overflows wrapper
                 var tlOverflowLeft = '', tlOverflowRight = '';
@@ -121,11 +130,13 @@
                     startOffset = 0;
                     tlOverflowLeft = 'tl-overflow-left';
                 }
-                if ((startOffset + duration) > that._days) {
+                var width = duration * that._percentagePerDay;
+                if ((startOffset + duration) > that._daysCount + 1) {
                     tlOverflowRight = 'tl-overflow-right';
+                    width = 100;
                 }
-                var left = startOffset * that._dayPercentage;
-                if (startOffset > that._days + 1) {
+                var left = startOffset * that._percentagePerDay;
+                if (startOffset > that._daysCount + 1) {
                     left = 100;
                 }
                 var visibility = (duration < 0) ? 'hidden' : 'visible';
@@ -134,7 +145,7 @@
                 $('<div class="tl-timeline">')
                     .html('<div class="tl-timeline__title">' + dataEntry.title + '</div>')
                     .css({
-                        'width': duration * that._dayPercentage + '%',
+                        'width': width + '%',
                         'left': left + '%',
                         'visibility': visibility,
                         'bottom': (useLayer * that.options.timelineSpacing) + 20 + 'px',
