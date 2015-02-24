@@ -6,7 +6,8 @@
             start: null,
             end: null,
             dateFormat: 'YYYY-MM-DD',
-            unitFormat: 'DD/MM'
+            unitFormat: 'DD/MM',
+            timelineSpacing: 30
         };
 
     function multiTimeline(element, options) {
@@ -33,6 +34,8 @@
         this._days = this.getDuration(this._start, this._end);
         this._dayPercentage = 100 / (this._days + 1);
 
+        this._timelineCount = this.options.data.length;
+
         this.init();
     }
 
@@ -42,6 +45,7 @@
             this
                 .createStructure()
                 .addTimelines()
+                .setDimensions()
         },
 
         createStructure: function () {
@@ -63,7 +67,7 @@
             var label = '';
 
             // Mark start
-            this.addTimeUnit($time, current, 0);
+            // this.addTimeUnit($time, current, 0);
 
             while (!current.isSame(end)) {
                 timeUnitCount++;
@@ -78,9 +82,9 @@
                 printedDates.push(current.format(this.options.dateFormat));
             }
             // Mark end (if not already marked)
-            if (!$.inArray(end.format(this.options.dateFormat), printedDates)) {
-                this.addTimeUnit($time, end, (timeUnitCount + 1));
-            }
+            //if (!$.inArray(end.format(this.options.dateFormat), printedDates)) {
+            //    this.addTimeUnit($time, end, (timeUnitCount + 1));
+            //}
             $time.appendTo(this.$element);
         },
 
@@ -102,10 +106,12 @@
 
         addTimelines: function () {
             var that = this;
-            var i = 0;
+            var layer = 0;
             $(this.options.data).each(function () {
                 var duration = that.getDuration(moment(this.start), moment(this.end));
                 var startOffset = that.getDuration(moment(that.options.start), moment(this.start));
+
+                var useLayer = (this.layer !== undefined) ? this.layer : layer;
 
                 var tlOverflowLeft = '', tlOverflowRight = '';
                 if (startOffset < 0) {
@@ -122,14 +128,20 @@
                     .css({
                         'width': duration * that._dayPercentage + '%',
                         'left': startOffset * that._dayPercentage + '%',
-                        'bottom': (i * 30) + 20 + 'px'
+                        'bottom': (useLayer * that.options.timelineSpacing) + 20 + 'px'
                     })
                     .addClass(tlOverflowLeft + ' ' + tlOverflowRight)
                     .attr({"data-startOffset": startOffset, "data-duration": duration})
                     .prependTo(that.$element);
-                i++;
+
+                layer++;
             });
             return this;
+        },
+
+        setDimensions: function () {
+            var timelineHeight = parseInt($('.tl-timeline:first').outerHeight());
+            this.$element.css('height', timelineHeight + (this._timelineCount * this.options.timelineSpacing));
         }
 
     };
