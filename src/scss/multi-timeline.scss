@@ -4,6 +4,7 @@
     width: 100%;
     height: 120px;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .tl-timeline {
@@ -34,7 +35,6 @@
     margin: 0;
     padding: 0;
     list-style-type: none;
-    text-align: justify;
     font-size: 1em;
     border-top: 1px solid #333;
     box-sizing: border-box;
@@ -47,5 +47,17 @@
     &__unit {
         display: inline-block;
         text-align: center;
+        position: absolute;
+        transform: translateX(-50%);
+        span {
+            content: "";
+            background: #aaa;
+            background: rgba(0,0,0,.1);
+            left: 50%;
+            width: 1px;
+            height: 200px;
+            top: -200px;
+            position: absolute;
+        }
     }
 }
