@@ -19,50 +19,40 @@
 <h1>multi-timeline.js example</h1>
 
 <div class="multi-timeline"></div>
-
-<div class="tl-wrapper">
-    <div class="tl-timeline">
-        <div class="tl-timeline__title">Title</div>
-    </div>
-    <div class="tl-timeline">
-        <div class="tl-timeline__title">Title</div>
-    </div>
-    <div class="tl-timeline">
-        <div class="tl-timeline__title">Title</div>
-    </div>
-    <ul class="tl-time">
-        <li class="tl-time__unit">2015-02-23</li>
-        <li class="tl-time__unit">2015-02-24</li>
-        <li class="tl-time__unit">2015-02-25</li>
-        <li class="tl-time__unit">2015-02-26</li>
-        <li class="tl-time__unit">2015-02-27</li>
-        <li class="tl-time__unit">2015-02-28</li>
-        <li class="tl-time__unit">2015-03-01</li>
-    </ul>
-</div>
+<a href="#" class="zoom-out">Zoom Out</a> |
+<a href="#" class="zoom-in">Zoom In</a> |
+<a href="#" class="go-left">Go Left</a> |
+<a href="#" class="go-right">Go right</a>
 <script>
     $(function () {
         $('.multi-timeline').multiTimeline({
             start: '2015-02-21',
-            end: '2015-04-04',
-            data: [{
-                title: 'tes2',
-                start: '2015-02-22 18:00:00',
-                end: '2015-02-24 01:00:00'
-            }, {
-                title: 'test1',
-                start: '2015-02-24',
-                end: '2015-02-27'
-            }, {
-                title: 'test3',
-                start: '2015-02-28',
-                end: '2015-03-01'
-            }, {
-                title: 'test4',
-                start: '2015-03-01',
-                end: '2015-03-05',
-                layer: 0
-            }
+            end: '2015-03-04',
+            zoomOutHandler: $('.zoom-out'),
+            zoomInHandler: $('.zoom-in'),
+            goRightHandler: $('.go-right'),
+            goLeftHandler: $('.go-left'),
+            data: [
+                {
+                    title: 'tes2',
+                    start: '2015-02-22 18:00:00',
+                    end: '2015-02-24 01:00:00',
+                    color: '#f00',
+                    class: 'important'
+                }, {
+                    title: 'test1',
+                    start: '2015-02-24',
+                    end: '2015-02-27'
+                }, {
+                    title: 'test3',
+                    start: '2015-02-28',
+                    end: '2015-03-01'
+                }, {
+                    title: 'test4',
+                    start: '2015-03-01',
+                    end: '2015-03-05',
+                    layer: 0
+                }
             ]
         });
     })
