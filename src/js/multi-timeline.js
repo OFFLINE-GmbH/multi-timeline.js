@@ -22,6 +22,7 @@
         this.options = $.extend({}, defaults, options);
         this._defaults = defaults;
         this._name = pluginName;
+        this._zoom = 5;
 
         this.init();
     }
@@ -212,32 +213,55 @@
             }
             return this;
         },
+        setZoom: function (zoom) {
+            var diff = this._zoom - zoom;
+            if (diff > 0) {
+                this.zoomIn(diff);
+            }
+            else if (diff < 0) {
+                this.zoomOut(Math.abs(diff));
+            }
+        },
+        zoomOut: function (levels) {
+            if (levels === undefined) {
+                levels = 1;
+            }
+            this.options.start = moment(this.options.start).subtract(levels * this.options.zoomStep, 'days').format('YYYY-MM-DD');
+            this.options.end = moment(this.options.end).add(levels * this.options.zoomStep, 'days').format('YYYY-MM-DD');
 
-        zoomOut: function () {
-            this.options.start = moment(this.options.start).subtract(this.options.zoomStep, 'days').format('YYYY-MM-DD');
-            this.options.end = moment(this.options.end).add(this.options.zoomStep, 'days').format('YYYY-MM-DD');
+            this._zoom = this._zoom + levels;
 
             this.reset().init();
         },
-        zoomIn: function () {
-            var newStart = moment(this.options.start).add(this.options.zoomStep, 'days');
-            var newEnd = moment(this.options.end).subtract(this.options.zoomStep, 'days');
+        zoomIn: function (levels) {
+            if (levels === undefined) {
+                levels = 1;
+            }
+            var newStart = moment(this.options.start).add(levels * this.options.zoomStep, 'days');
+            var newEnd = moment(this.options.end).subtract(levels * this.options.zoomStep, 'days');
 
             if (newStart.isBefore(newEnd)) {
                 this.options.start = newStart.format('YYYY-MM-DD');
                 this.options.end = newEnd.format('YYYY-MM-DD');
+                this._zoom = this._zoom - levels;
                 this.reset().init();
             }
         },
         goRight: function () {
-            this.options.start = moment(this.options.start).add(1, 'days').format('YYYY-MM-DD');
-            this.options.end = moment(this.options.end).add(1, 'days').format('YYYY-MM-DD');
+
+            var jump = Math.round(this._daysCount / 12);
+
+            this.options.start = moment(this.options.start).add(jump, 'days').format('YYYY-MM-DD');
+            this.options.end = moment(this.options.end).add(jump, 'days').format('YYYY-MM-DD');
             this.reset().init();
 
         },
         goLeft: function () {
-            this.options.start = moment(this.options.start).subtract(1, 'days').format('YYYY-MM-DD');
-            this.options.end = moment(this.options.end).subtract(1, 'days').format('YYYY-MM-DD');
+
+            var jump = Math.round(this._daysCount / 12);
+
+            this.options.start = moment(this.options.start).subtract(jump, 'days').format('YYYY-MM-DD');
+            this.options.end = moment(this.options.end).subtract(jump, 'days').format('YYYY-MM-DD');
 
             this.reset().init();
         },
