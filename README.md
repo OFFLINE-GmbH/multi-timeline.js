@@ -55,10 +55,10 @@ These are possible config values. Shown are defaults.
         onZoomChange:     function(newZoom) {       // Executed when zoom changes
             
         },
-        onTimelineClick:  function(event, data) {  // Executed when a timeline is clicked. Receives js event and
-                                                  // data specified in `data`
+        onTimelineClick:  function(event, data) {   // Executed when a timeline is clicked. Receives js event and
+                                                    // data specified in `data`
         },
-        data: []                                  // Timeline data (see below)
+        data: []                                    // Timeline data (see below)
     });
     
 ### Timeline data
@@ -73,9 +73,9 @@ Each timeline is specified as an object and can receive the following attributes
         class:  'important',                // Additional class for .tl-timeline elements
         zIndex: 10,                         // z-index for this timeline (to manage overlaps)
         
-        layer: 0                           // Each timeline is on it's own layer (always one higher than the one 
-                                           // before). If you set a specific layer, it's possible for to 
-                                           // timelines to share the same layer.
+        layer: 0                            // Each timeline is on it's own layer (always one higher than the one 
+                                            // before). If you set a specific layer, it's possible for two 
+                                            // timelines to share the same layer.
     }
     
 If the `start` or `end` attributes are not specified, the timeline becomes infinite in corresponding direction.
@@ -86,8 +86,8 @@ You can specifiy elements to trigger certain events:
 
     zoomOutControl: $('.zoom-out')     // Zooms out 1 zoomStep on click
     zoomInControl:  $('.zoom-in')      // Zooms in 1 zoomStep on click
-    goRightControl: $('.go-right')     // Pans the timeline to the right
-    goLeftControl:  $('.go-left')      // Pans the timeline to the left
+    goRightControl: $('.go-right')     // Pans the timeline to the right on click
+    goLeftControl:  $('.go-left')      // Pans the timeline to the left on click
     
 #### External zoom slider
 
