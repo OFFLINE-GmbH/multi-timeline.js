@@ -9,10 +9,13 @@
             unitFormat: 'DD/MM',
             timelineSpacing: 30,
             zoomStep: 1,
+            zoom: 5,
             maxLabelCount: 20,
             infinity: '9999-12-31',
             dawn: '0000-01-01',
             onTimelineClick: function (event, data) {
+            },
+            onZoomChange: function (newZoom) {
             }
         };
 
@@ -26,6 +29,9 @@
         this._zoom = 5;
 
         this.init();
+        if(this.options.zoom != 5) {
+            this.setZoom(this.options.zoom);
+        }
 
         return this;
 
@@ -218,6 +224,7 @@
             return this;
         },
         setZoom: function (zoom) {
+            if (zoom < 0) return;
             var diff = this._zoom - zoom;
             if (diff > 0) {
                 this.zoomIn(diff);
@@ -234,6 +241,7 @@
             this.options.end = moment(this.options.end).add(levels * this.options.zoomStep, 'days').format('YYYY-MM-DD');
 
             this._zoom = this._zoom + levels;
+            this.options.onZoomChange(this._zoom);
 
             this.reset().init();
         },
@@ -248,6 +256,7 @@
                 this.options.start = newStart.format('YYYY-MM-DD');
                 this.options.end = newEnd.format('YYYY-MM-DD');
                 this._zoom = this._zoom - levels;
+                this.options.onZoomChange(this._zoom);
                 this.reset().init();
             }
         },

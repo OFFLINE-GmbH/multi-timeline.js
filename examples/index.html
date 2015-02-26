@@ -23,36 +23,48 @@
 <a href="#" class="zoom-in">Zoom In</a> |
 <a href="#" class="go-left">Go Left</a> |
 <a href="#" class="go-right">Go right</a>
+
+<input type="range" min="0" max="40" value="5" class="js-set-zoom"/>
 <script>
     $(function () {
+        var timelineData =  [
+            {
+                title: 'tes2',
+                start: '2015-02-22 18:00:00',
+                end: '2015-02-24 01:00:00',
+                color: '#f00',
+                class: 'important'
+            }, {
+                title: 'Always'
+            }, {
+                title: 'test3',
+                start: '2015-02-28'
+            }, {
+                title: 'test4',
+                start: '2015-03-01',
+                end: '2015-03-05',
+                layer: 0
+            }
+        ];
         var timeline = $('.multi-timeline').multiTimeline({
             start: '2015-02-21',
             end: '2015-03-04',
+            zoom: 16,
             zoomOutHandler: $('.zoom-out'),
             zoomInHandler: $('.zoom-in'),
             goRightHandler: $('.go-right'),
             goLeftHandler: $('.go-left'),
-            data: [
-                {
-                    title: 'tes2',
-                    start: '2015-02-22 18:00:00',
-                    end: '2015-02-24 01:00:00',
-                    color: '#f00',
-                    class: 'important'
-                }, {
-                    title: 'Always'
-                }, {
-                    title: 'test3',
-                    start: '2015-02-28'
-                }, {
-                    title: 'test4',
-                    start: '2015-03-01',
-                    end: '2015-03-05',
-                    layer: 0
-                }
-            ]
+            onZoomChange: function(newZoom) {
+                $('.js-set-zoom').val(newZoom);
+            },
+            onTimelineClick: function(event, data) {
+
+            },
+            data: timelineData
         });
-        $('.multi-timeline').data('multiTimeline').setZoom(2);
+        $('.js-set-zoom').on('change', function() {
+            timeline.data('multiTimeline').setZoom(this.value);
+        });
     })
 </script>
 </body>
