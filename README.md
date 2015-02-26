@@ -9,6 +9,12 @@
 See [https://offline-gmbh.github.io/multi-timeline.js/](https://offline-gmbh.github.io/multi-timeline.js/)
 
 ### Install it
+
+Install it via bower
+
+    bower install multi-timeline --save
+    
+or download `multi-timeline.min.js` and `multi-timeline.min.css` manually.
  
 Include [`jquery.js`](http://jquery.com/), [`moment.js`](http://momentjs.com/) and `multi-timeline.js`:
 
