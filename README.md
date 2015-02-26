@@ -41,18 +41,21 @@ Create the root element that holds your timelines:
 These are possible config values. Shown are defaults.
 
     $('.multi-timeline').multiTimeline({
-        start:          '2015-02-21',             // Start of the timeline. Default is today -7 days
-        end:            '2015-03-04',             // End of the timeline. Default is today +7 days
-        zoom:           5,                        // Initial zoom level. 
-        zoomStep:       1,                        // Number of days added before `start` and after `end` when zooming   
-        zoomOutControl: $('.zoom-out'),           // Element to trigger zoomOut on click
-        zoomInControl:  $('.zoom-in'),            // Element to trigger zoomIn on click
-        goRightControl: $('.go-right'),           // Element to trigger goRight on click
-        goLeftControl:  $('.go-left'),            // Element to trigger goLeft on click
-        onZoomChange:   function(newZoom) {       // Executed when zoom changes
+        start:            '2015-02-21',             // Start of the timeline. Default is today -7 days
+        end:              '2015-03-04',             // End of the timeline. Default is today +7 days
+        zoom:             5,                        // Initial zoom level. 
+        zoomStep:         1,                        // Number of days added before `start` and after `end` when zooming   
+        zoomOutControl:   $('.zoom-out'),           // Element to trigger zoomOut on click
+        zoomInControl:    $('.zoom-in'),            // Element to trigger zoomIn on click
+        goRightControl:   $('.go-right'),           // Element to trigger goRight on click
+        goLeftControl:    $('.go-left'),            // Element to trigger goLeft on click
+        maxLabelCount:    20,                       // Max count of x-axis labels (lower it if your labels overlap)
+        timelineSpacing:  30,                       // Vertical margin in pixels between two timelines 
+        dateFormat:       'DD/MM',                  // x-axis date format (moment.js format) 
+        onZoomChange:     function(newZoom) {       // Executed when zoom changes
             
         },
-        onTimelineClick: function(event, data) {  // Executed when a timeline is clicked. Receives js event and
+        onTimelineClick:  function(event, data) {  // Executed when a timeline is clicked. Receives js event and
                                                   // data specified in `data`
         },
         data: []                                  // Timeline data (see below)
@@ -63,11 +66,12 @@ These are possible config values. Shown are defaults.
 Each timeline is specified as an object and can receive the following attributes. All attributes are optional.
  
     {
-        title: 'Title of your timeline',   
-        start: '2015-02-22 18:00:00',      // ISO_8601 date (with or without time)     
-        end:   '2015-02-24',               // ISO_8601 date (with or without time)
-        color: '#f00',                     // background-color, is set via inline style-attribute
-        class: 'important',                // Additional class for .tl-timeline elements
+        title:  'Title of your timeline',   
+        start:  '2015-02-22 18:00:00',      // ISO_8601 date (with or without time)     
+        end:    '2015-02-24',               // ISO_8601 date (with or without time)
+        color:  '#f00',                     // background-color, is set via inline style-attribute
+        class:  'important',                // Additional class for .tl-timeline elements
+        zIndex: 10,                         // z-index for this timeline (to manage overlaps)
         
         layer: 0                           // Each timeline is on it's own layer (always one higher than the one 
                                            // before). If you set a specific layer, it's possible for to 

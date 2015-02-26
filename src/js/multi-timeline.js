@@ -3,20 +3,24 @@
 
     var pluginName = "multiTimeline",
         defaults = {
-            start: null,
-            end: null,
-            dateFormat: 'YYYY-MM-DD',
-            unitFormat: 'DD/MM',
+            start: moment().subtract(7, 'days').format('YYYY-MM-DD'),
+            end: moment().add(7, 'days').format('YYYY-MM-DD'),
+            dateFormat: 'DD/MM',
             timelineSpacing: 30,
             zoomStep: 1,
             zoom: 5,
             maxLabelCount: 20,
             infinity: '9999-12-31',
             dawn: '0000-01-01',
+            data: [],
             onTimelineClick: function (event, data) {
             },
             onZoomChange: function (newZoom) {
-            }
+            },
+            zoomInControl: null,
+            zoomOutControl: null,
+            goLeftControl: null,
+            goRightControl: null
         };
 
     function multiTimeline(element, options) {
@@ -27,9 +31,11 @@
         this._defaults = defaults;
         this._name = pluginName;
         this._zoom = 5;
+        this._layerCount = 0;
 
         this.init();
-        if(this.options.zoom != 5) {
+
+        if (this.options.zoom != 5) {
             this.setZoom(this.options.zoom);
         }
 
@@ -81,7 +87,6 @@
 
             var $time = $('<ul class="tl-time">');
             var timeUnitCount = -1;
-            var printedDates = [];
             var label = '';
 
             while (!current.isSame(end)) {
@@ -94,14 +99,13 @@
                 }
                 this.addTimeUnit($time, label, (timeUnitCount + 1));
 
-                printedDates.push(current.format(this.options.dateFormat));
             }
             $time.appendTo(this.$element);
         },
 
         addTimeUnit: function ($time, label, position) {
             if (moment.isMoment(label)) {
-                label = label.format(this.options.unitFormat);
+                label = label.format(this.options.dateFormat);
             }
             $('<li class="tl-time__unit">')
                 .html(label)
@@ -117,7 +121,7 @@
 
         addTimelines: function () {
             var that = this;
-            var layer = 0;
+            var currentLayer = 0;
 
             $(this.options.data).each(function () {
                 var dataEntry = this;
@@ -132,7 +136,14 @@
 
                 var duration = that.getDuration(moment(dataEntry.start), moment(dataEntry.end));
                 var startOffset = that.getDuration(moment(that.options.start), moment(dataEntry.start));
-                var useLayer = (dataEntry.layer !== undefined) ? dataEntry.layer : layer;
+
+                var useLayer;
+                if (dataEntry.layer === undefined) {
+                    useLayer = currentLayer;
+                    currentLayer++;
+                } else {
+                    useLayer = dataEntry.layer;
+                }
 
                 // Check if timline overflows wrapper
                 var tlOverflowLeft = '', tlOverflowRight = '';
@@ -151,56 +162,58 @@
                     left = 100;
                 }
                 var visibility = (duration < 0) ? 'hidden' : 'visible';
+                var title = (dataEntry.title !== undefined) ? dataEntry.title : '&nbsp;';
 
                 // Add Timeline
                 $('<div class="tl-timeline">')
-                    .html('<div class="tl-timeline__title">' + dataEntry.title + '</div>')
+                    .html('<div class="tl-timeline__title">' + title + '</div>')
                     .css({
                         'width': width + '%',
                         'left': left + '%',
                         'visibility': visibility,
                         'bottom': (useLayer * that.options.timelineSpacing) + 20 + 'px',
-                        'background-color': (dataEntry.color !== undefined) ? dataEntry.color : '#333333'
+                        'background-color': (dataEntry.color !== undefined) ? dataEntry.color : '#333333',
+                        'z-index': (dataEntry.zIndex !== undefined) ? dataEntry.zIndex : 10
                     })
                     .addClass(tlOverflowLeft + ' ' + tlOverflowRight + ' ' + ((dataEntry.class !== undefined) ? dataEntry.class : '' ))
-                    .attr({"data-startOffset": startOffset, "data-duration": duration})
+                    .attr({"data-startOffset": startOffset, "data-duration": duration, "title": title})
                     .on('click', function (event) {
                         that.options.onTimelineClick(event, dataEntry);
                     })
                     .prependTo(that.$element);
 
-                layer++;
             });
+            this._layerCount = currentLayer;
             return this;
         },
 
         setWrapperDimensions: function () {
             var timelineHeight = parseInt($('.tl-timeline:first').outerHeight());
-            this.$element.css('height', timelineHeight + (this._timelineCount * this.options.timelineSpacing));
+            this.$element.css('height', timelineHeight + (this._layerCount * this.options.timelineSpacing));
         },
 
         addEventHandlers: function () {
             var that = this;
-            if (this.options.zoomInHandler !== undefined) {
-                this.options.zoomInHandler.on('click', function (e) {
+            if (this.options.zoomInControl !== null) {
+                this.options.zoomInControl.on('click', function (e) {
                     that.zoomIn();
                     e.preventDefault()
                 })
             }
-            if (this.options.zoomOutHandler !== undefined) {
-                this.options.zoomOutHandler.on('click', function (e) {
+            if (this.options.zoomOutControl !== null) {
+                this.options.zoomOutControl.on('click', function (e) {
                     that.zoomOut();
                     e.preventDefault()
                 })
             }
-            if (this.options.goRightHandler !== undefined) {
-                this.options.goRightHandler.on('click', function (e) {
+            if (this.options.goRightControl !== null) {
+                this.options.goRightControl.on('click', function (e) {
                     that.goRight();
                     e.preventDefault()
                 })
             }
-            if (this.options.goLeftHandler !== undefined) {
-                this.options.goLeftHandler.on('click', function (e) {
+            if (this.options.goLeftControl !== null) {
+                this.options.goLeftControl.on('click', function (e) {
                     that.goLeft();
                     e.preventDefault()
                 })
@@ -209,17 +222,17 @@
         },
 
         removeEventHandlers: function () {
-            if (this.options.zoomInHandler !== undefined) {
-                this.options.zoomInHandler.off('click');
+            if (this.options.zoomInControl !== null) {
+                this.options.zoomInControl.off('click');
             }
-            if (this.options.zoomOutHandler !== undefined) {
-                this.options.zoomOutHandler.off('click');
+            if (this.options.zoomOutControl !== null) {
+                this.options.zoomOutControl.off('click');
             }
-            if (this.options.goRightHandler !== undefined) {
-                this.options.goRightHandler.off('click');
+            if (this.options.goRightControl !== null) {
+                this.options.goRightControl.off('click');
             }
-            if (this.options.goLeftHandler !== undefined) {
-                this.options.goLeftHandler.off('click');
+            if (this.options.goLeftControl !== null) {
+                this.options.goLeftControl.off('click');
             }
             return this;
         },
