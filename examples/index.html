@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>multi-timeline.js: Visualisation and management of multiple timelines</title>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+    <script src="../dest/multi-timeline.min.js"></script>
+
+    <link rel="stylesheet" href="../dest/multi-timeline.min.css"/>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.4;
+        }
+
+        .tl-wrapper {
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>multi-timeline.js examples</h1>
+
+<!-- ------------------------------------------------ -->
+
+<h2>Simple timeline</h2>
+
+<div class="simple-timeline"></div>
+
+<script>
+    $(function () {
+        $('.simple-timeline').multiTimeline({
+            start: '2015-02-18',
+            end: '2015-03-01',
+            data: [
+                {
+                    'title': 'Simple timeline',
+                    'start': '2015-02-20',
+                    'end': '2015-02-26'
+                },
+                {
+                    'title': 'Another timeline',
+                    'start': '2015-02-22',
+                    'end': '2015-02-24'
+                }
+            ]
+        });
+    })
+</script>
+
+<!-- ------------------------------------------------ -->
+
+<h2>Advanced timeline</h2>
+
+<div class="advanced-timeline"></div>
+
+<script>
+    $(function () {
+        $('.advanced-timeline').multiTimeline({
+            start: '2015-02-01',
+            end: '2015-02-28',
+            data: [
+                {
+                    'title': 'I have been here forever',
+                    'end': '2015-02-13'
+                },
+                {
+                    'title': 'I\'ll be here forever',
+                    'start': '2015-02-14'
+                },
+                {
+                    'title': 'I share a layer',
+                    'start': '2015-02-15',
+                    'end': '2015-02-18',
+                    'layer': 0
+                },
+                {
+                    'title': 'I am red and overlapping',
+                    'start': '2015-02-17',
+                    'end': '2015-02-22',
+                    'color': '#f00',
+                    'layer': 1,
+                    'zIndex': 20
+                },
+                {
+                    'title': 'I am pretty simple',
+                    'start': '2015-02-10',
+                    'end': '2015-02-12'
+                },
+            ]
+        });
+    })
+</script>
+
+<!-- ------------------------------------------------ -->
+
+<h2>Timeline with controls</h2>
+
+<div class="controls">
+    <button type="button" class="js-go-left">Go left</button>
+    <button type="button" class="js-go-right">Go right</button>
+    <input type="range" id="range" min="0" max="40" value="5" class="js-set-zoom"/>
+
+    <button type="button" class="js-zoom-out">Zoom out</button>
+    <button type="button" class="js-zoom-in">Zoom in</button>
+</div>
+<script>
+    $(function () {
+        var timeline = $('.controls-timeline').multiTimeline({
+            start: '2015-02-01',
+            end: '2015-02-28',
+            zoom: 4,
+            zoomOutControl: $('.js-zoom-out'),
+            zoomInControl: $('.js-zoom-in'),
+            goRightControl: $('.js-go-right'),
+            goLeftControl: $('.js-go-left'),
+            onZoomChange: function (newZoom) {
+                $('.js-set-zoom').val(newZoom);
+            },
+            onTimelineClick: function (event, data) {
+                alert('You clicked on a timeline: ' + data.title);
+            },
+            data: [
+                {
+                    'title': 'I have been here forever',
+                    'end': '2015-02-13'
+                },
+                {
+                    'title': 'I\'ll be here forever',
+                    'start': '2015-02-14'
+                },
+                {
+                    'title': 'I share a layer',
+                    'start': '2015-02-15',
+                    'end': '2015-02-18',
+                    'layer': 0
+                },
+                {
+                    'title': 'I am red and overlapping',
+                    'start': '2015-02-17',
+                    'end': '2015-02-22',
+                    'color': '#f00',
+                    'layer': 1,
+                    'zIndex': 20
+                },
+                {
+                    'title': 'I am pretty simple',
+                    'start': '2015-02-10',
+                    'end': '2015-02-12'
+                },
+            ]
+        });
+        $('.js-set-zoom').on('change', function () {
+            timeline.data('multiTimeline').setZoom(this.value);
+        });
+    })
+</script>
+</body>
+</html>
