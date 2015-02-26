@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>multi-timeline.js example</title>
+    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
+    <script src="../dest/multi-timeline.min.js"></script>
+
     <link rel="stylesheet" href="../dest/multi-timeline.min.css"/>
     <style>
         body {
@@ -14,25 +18,54 @@
 
 <h1>multi-timeline.js example</h1>
 
-<div class="tl-wrapper">
-    <div class="tl-timeline">
-        <div class="tl-timeline__title">Title</div>
-    </div>
-    <div class="tl-timeline">
-        <div class="tl-timeline__title">Title</div>
-    </div>
-    <div class="tl-timeline">
-        <div class="tl-timeline__title">Title</div>
-    </div>
-    <ul class="tl-time">
-        <li class="tl-time__unit">2015-02-23</li>
-        <li class="tl-time__unit">2015-02-24</li>
-        <li class="tl-time__unit">2015-02-25</li>
-        <li class="tl-time__unit">2015-02-26</li>
-        <li class="tl-time__unit">2015-02-27</li>
-        <li class="tl-time__unit">2015-02-28</li>
-        <li class="tl-time__unit">2015-03-01</li>
-    </ul>
-</div>
+<div class="multi-timeline"></div>
+<a href="#" class="zoom-out">Zoom Out</a> |
+<a href="#" class="zoom-in">Zoom In</a> |
+<a href="#" class="go-left">Go Left</a> |
+<a href="#" class="go-right">Go right</a>
+
+<input type="range" min="0" max="40" value="5" class="js-set-zoom"/>
+<script>
+    $(function () {
+        var timelineData =  [
+            {
+                title: 'tes2',
+                start: '2015-02-22 18:00:00',
+                end: '2015-02-24 01:00:00',
+                color: '#f00',
+                class: 'important'
+            }, {
+                title: 'Always'
+            }, {
+                title: 'test3',
+                start: '2015-02-28'
+            }, {
+                title: 'test4',
+                start: '2015-03-01',
+                end: '2015-03-05',
+                layer: 0
+            }
+        ];
+        var timeline = $('.multi-timeline').multiTimeline({
+            start: '2015-02-21',
+            end: '2015-03-04',
+            zoom: 16,
+            zoomOutHandler: $('.zoom-out'),
+            zoomInHandler: $('.zoom-in'),
+            goRightHandler: $('.go-right'),
+            goLeftHandler: $('.go-left'),
+            onZoomChange: function(newZoom) {
+                $('.js-set-zoom').val(newZoom);
+            },
+            onTimelineClick: function(event, data) {
+
+            },
+            data: timelineData
+        });
+        $('.js-set-zoom').on('change', function() {
+            timeline.data('multiTimeline').setZoom(this.value);
+        });
+    })
+</script>
 </body>
 </html>
