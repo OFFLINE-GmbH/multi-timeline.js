@@ -7,7 +7,6 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
     <script src="../dest/multi-timeline.min.js"></script>
 
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="../dest/multi-timeline.min.css"/>
     <style>
         body {
@@ -18,180 +17,96 @@
         .tl-wrapper {
             margin: 40px 0;
         }
-
-        #range {
-            float: right;
-            width: 65%;
-        }
-        .controls {
-            margin: 20px 0;
-        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="row">
-        <div class="jumbotron">
-            <h1>multi-timeline.js examples</h1>
-            <p>Visualisation and management of multiple timelines</p>
-            <p><a href="https://github.com/OFFLINE-GmbH/multi-timeline.js" class="btn btn-primary btn-lg">View on GitHub</a></p>
-        </div>
+<h1>multi-timeline.js examples</h1>
 
-        <h2>Simple timeline</h2>
+<!-- ------------------------------------------------ -->
 
-        <div class="simple-timeline"></div>
+<h2>Simple timeline</h2>
 
-        <pre>
-$(function () {
-    $('.simple-timeline').multiTimeline({
-        start: '2015-02-18',
-        end: '2015-03-01',
-        data: [
-            {
-                'title': 'Simple timeline',
-                'start': '2015-02-20',
-                'end': '2015-02-26'
-            },
-            {
-                'title': 'Another timeline',
-                'start': '2015-02-22',
-                'end': '2015-02-24'
-            }
-        ]
-    });
-})
-        </pre>
+<div class="simple-timeline"></div>
 
-        <script>
-            $(function () {
-                $('.simple-timeline').multiTimeline({
-                    start: '2015-02-18',
-                    end: '2015-03-01',
-                    data: [
-                        {
-                            'title': 'Simple timeline',
-                            'start': '2015-02-20',
-                            'end': '2015-02-26'
-                        },
-                        {
-                            'title': 'Another timeline',
-                            'start': '2015-02-22',
-                            'end': '2015-02-24'
-                        }
-                    ]
-                });
-            })
-        </script>
-    </div>
-    <div class="row">
-        <hr/>
+<script>
+    $(function () {
+        $('.simple-timeline').multiTimeline({
+            start: '2015-02-18',
+            end: '2015-03-01',
+            data: [
+                {
+                    'title': 'Simple timeline',
+                    'start': '2015-02-20',
+                    'end': '2015-02-26'
+                },
+                {
+                    'title': 'Another timeline',
+                    'start': '2015-02-22',
+                    'end': '2015-02-24'
+                }
+            ]
+        });
+    })
+</script>
 
-        <h2>Advanced timeline</h2>
+<!-- ------------------------------------------------ -->
 
-        <div class="advanced-timeline"></div>
-<pre>
-$(function () {
-    $('.advanced-timeline').multiTimeline({
-        start: '2015-02-01',
-        end: '2015-02-28',
-        data: [
-            {
-                'title': 'I have been here forever',
-                'end': '2015-02-13'
-            },
-            {
-                'title': 'I\'ll be here forever',
-                'start': '2015-02-14'
-            },
-            {
-                'title': 'I share a layer',
-                'start': '2015-02-15',
-                'end': '2015-02-18',
-                'layer': 0
-            },
-            {
-                'title': 'I am red and overlapping',
-                'start': '2015-02-17',
-                'end': '2015-02-22',
-                'color': '#f00',
-                'layer': 1,
-                'zIndex': 20
-            },
-            {
-                'title': 'I am pretty simple',
-                'start': '2015-02-10',
-                'end': '2015-02-12'
-            },
-        ]
-    });
-})
-</pre>
-        <script>
-            $(function () {
-                $('.advanced-timeline').multiTimeline({
-                    start: '2015-02-01',
-                    end: '2015-02-28',
-                    data: [
-                        {
-                            'title': 'I have been here forever',
-                            'end': '2015-02-13'
-                        },
-                        {
-                            'title': 'I\'ll be here forever',
-                            'start': '2015-02-14'
-                        },
-                        {
-                            'title': 'I share a layer',
-                            'start': '2015-02-15',
-                            'end': '2015-02-18',
-                            'layer': 0
-                        },
-                        {
-                            'title': 'I am red and overlapping',
-                            'start': '2015-02-17',
-                            'end': '2015-02-22',
-                            'color': '#f00',
-                            'layer': 1,
-                            'zIndex': 20
-                        },
-                        {
-                            'title': 'I am pretty simple',
-                            'start': '2015-02-10',
-                            'end': '2015-02-12'
-                        },
-                    ]
-                });
-            })
-        </script>
-    </div>
-    <hr/>
-    <div class="row">
-        <h2>Timeline with controls</h2>
+<h2>Advanced timeline</h2>
 
-        <div class="controls-timeline"></div>
-        <div class="controls">
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-default js-go-left">Go left</button>
-                <button type="button" class="btn btn-default js-go-right">Go right</button>
-            </div>
-            <input type="range" id="range" min="0" max="40" value="5" class="js-set-zoom"/>
+<div class="advanced-timeline"></div>
 
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-default js-zoom-out">Zoom out</button>
-                <button type="button" class="btn btn-default js-zoom-in">Zoom in</button>
-            </div>
-        </div>
-<pre>
-&#x3C;button type=&#x22;button&#x22; class=&#x22;js-go-left&#x22;&#x3E;Go left&#x3C;/button&#x3E;
-&#x3C;button type=&#x22;button&#x22; class=&#x22;js-go-right&#x22;&#x3E;Go right&#x3C;/button&#x3E;
+<script>
+    $(function () {
+        $('.advanced-timeline').multiTimeline({
+            start: '2015-02-01',
+            end: '2015-02-28',
+            data: [
+                {
+                    'title': 'I have been here forever',
+                    'end': '2015-02-13'
+                },
+                {
+                    'title': 'I\'ll be here forever',
+                    'start': '2015-02-14'
+                },
+                {
+                    'title': 'I share a layer',
+                    'start': '2015-02-15',
+                    'end': '2015-02-18',
+                    'layer': 0
+                },
+                {
+                    'title': 'I am red and overlapping',
+                    'start': '2015-02-17',
+                    'end': '2015-02-22',
+                    'color': '#f00',
+                    'layer': 1,
+                    'zIndex': 20
+                },
+                {
+                    'title': 'I am pretty simple',
+                    'start': '2015-02-10',
+                    'end': '2015-02-12'
+                },
+            ]
+        });
+    })
+</script>
 
-&#x3C;button type=&#x22;button&#x22; class=&#x22;js-zoom-out&#x22;&#x3E;Zoom out&#x3C;/button&#x3E;
-&#x3C;button type=&#x22;button&#x22; class=&#x22;js-zoom-in&#x22;&#x3E;Zoom in&#x3C;/button&#x3E;
+<!-- ------------------------------------------------ -->
 
-&#x3C;input type=&#x22;range&#x22; id=&#x22;range&#x22; min=&#x22;0&#x22; max=&#x22;40&#x22; value=&#x22;5&#x22; class=&#x22;js-set-zoom&#x22;/&#x3E;
+<h2>Timeline with controls</h2>
 
-&#x3C;script&#x3E;
+<div class="controls">
+    <button type="button" class="js-go-left">Go left</button>
+    <button type="button" class="js-go-right">Go right</button>
+    <input type="range" id="range" min="0" max="40" value="5" class="js-set-zoom"/>
+
+    <button type="button" class="js-zoom-out">Zoom out</button>
+    <button type="button" class="js-zoom-in">Zoom in</button>
+</div>
+<script>
     $(function () {
         var timeline = $('.controls-timeline').multiTimeline({
             start: '2015-02-01',
@@ -207,67 +122,40 @@ $(function () {
             onTimelineClick: function (event, data) {
                 alert('You clicked on a timeline: ' + data.title);
             },
-            data: advancedTimelineData
+            data: [
+                {
+                    'title': 'I have been here forever',
+                    'end': '2015-02-13'
+                },
+                {
+                    'title': 'I\'ll be here forever',
+                    'start': '2015-02-14'
+                },
+                {
+                    'title': 'I share a layer',
+                    'start': '2015-02-15',
+                    'end': '2015-02-18',
+                    'layer': 0
+                },
+                {
+                    'title': 'I am red and overlapping',
+                    'start': '2015-02-17',
+                    'end': '2015-02-22',
+                    'color': '#f00',
+                    'layer': 1,
+                    'zIndex': 20
+                },
+                {
+                    'title': 'I am pretty simple',
+                    'start': '2015-02-10',
+                    'end': '2015-02-12'
+                },
+            ]
         });
         $('.js-set-zoom').on('change', function () {
             timeline.data('multiTimeline').setZoom(this.value);
         });
     })
-&#x3C;/script&#x3E;
-</pre>
-        <script>
-            $(function () {
-                var timeline = $('.controls-timeline').multiTimeline({
-                    start: '2015-02-01',
-                    end: '2015-02-28',
-                    zoom: 4,
-                    zoomOutControl: $('.js-zoom-out'),
-                    zoomInControl: $('.js-zoom-in'),
-                    goRightControl: $('.js-go-right'),
-                    goLeftControl: $('.js-go-left'),
-                    onZoomChange: function (newZoom) {
-                        $('.js-set-zoom').val(newZoom);
-                    },
-                    onTimelineClick: function (event, data) {
-                        alert('You clicked on a timeline: ' + data.title);
-                    },
-                    data: [
-                        {
-                            'title': 'I have been here forever',
-                            'end': '2015-02-13'
-                        },
-                        {
-                            'title': 'I\'ll be here forever',
-                            'start': '2015-02-14'
-                        },
-                        {
-                            'title': 'I share a layer',
-                            'start': '2015-02-15',
-                            'end': '2015-02-18',
-                            'layer': 0
-                        },
-                        {
-                            'title': 'I am red and overlapping',
-                            'start': '2015-02-17',
-                            'end': '2015-02-22',
-                            'color': '#f00',
-                            'layer': 1,
-                            'zIndex': 20
-                        },
-                        {
-                            'title': 'I am pretty simple',
-                            'start': '2015-02-10',
-                            'end': '2015-02-12'
-                        },
-                    ]
-                });
-                $('.js-set-zoom').on('change', function () {
-                    timeline.data('multiTimeline').setZoom(this.value);
-                });
-            })
-        </script>
-    </div>
-</div>
-<a href="https://github.com/OFFLINE-GmbH/multi-timeline.js"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+</script>
 </body>
 </html>
