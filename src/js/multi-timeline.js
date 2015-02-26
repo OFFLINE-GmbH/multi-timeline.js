@@ -12,11 +12,12 @@
             maxLabelCount: 20,
             infinity: '9999-12-31',
             dawn: '0000-01-01',
-            timelineClick: function (event, data) {
+            onTimelineClick: function (event, data) {
             }
         };
 
     function multiTimeline(element, options) {
+
         this.element = element;
         this.$element = $(element);
         this.options = $.extend({}, defaults, options);
@@ -25,6 +26,9 @@
         this._zoom = 5;
 
         this.init();
+
+        return this;
+
     }
 
     multiTimeline.prototype = {
@@ -155,7 +159,7 @@
                     .addClass(tlOverflowLeft + ' ' + tlOverflowRight + ' ' + ((dataEntry.class !== undefined) ? dataEntry.class : '' ))
                     .attr({"data-startOffset": startOffset, "data-duration": duration})
                     .on('click', function (event) {
-                        that.options.timelineClick(event, dataEntry);
+                        that.options.onTimelineClick(event, dataEntry);
                     })
                     .prependTo(that.$element);
 
@@ -274,10 +278,11 @@
 
     $.fn[pluginName] = function (options) {
         return this.each(function () {
-            if (!$.data(this, "plugin_" + pluginName)) {
-                $.data(this, "plugin_" + pluginName,
+            if (!$.data(this, pluginName)) {
+                $.data(this, pluginName,
                     new multiTimeline(this, options));
             }
+            return this;
         });
     };
 

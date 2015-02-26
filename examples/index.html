@@ -25,7 +25,7 @@
 <a href="#" class="go-right">Go right</a>
 <script>
     $(function () {
-        $('.multi-timeline').multiTimeline({
+        var timeline = $('.multi-timeline').multiTimeline({
             start: '2015-02-21',
             end: '2015-03-04',
             zoomOutHandler: $('.zoom-out'),
@@ -52,6 +52,7 @@
                 }
             ]
         });
+        $('.multi-timeline').data('multiTimeline').setZoom(2);
     })
 </script>
 </body>
