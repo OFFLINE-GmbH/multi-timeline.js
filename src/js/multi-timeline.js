@@ -189,7 +189,7 @@
 
         setWrapperDimensions: function () {
             var timelineHeight = parseInt($('.tl-timeline:first').outerHeight());
-            this.$element.css('height', timelineHeight + (this._layerCount * this.options.timelineSpacing));
+            this.$element.css('height', timelineHeight + ((this._layerCount + 1) * this.options.timelineSpacing));
         },
 
         addEventHandlers: function () {
