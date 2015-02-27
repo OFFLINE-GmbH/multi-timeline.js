@@ -172,7 +172,7 @@
                         'left': left + '%',
                         'visibility': visibility,
                         'bottom': (useLayer * that.options.timelineSpacing) + 20 + 'px',
-                        'background-color': (dataEntry.color !== undefined) ? dataEntry.color : '#333333',
+                        'background-color': (dataEntry.color !== undefined) ? dataEntry.color : null,
                         'z-index': (dataEntry.zIndex !== undefined) ? dataEntry.zIndex : 10
                     })
                     .addClass(tlOverflowLeft + ' ' + tlOverflowRight + ' ' + ((dataEntry.class !== undefined) ? dataEntry.class : '' ))
