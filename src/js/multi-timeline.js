@@ -188,8 +188,10 @@
         },
 
         setWrapperDimensions: function () {
-            var timelineHeight = parseInt($('.tl-timeline:first').outerHeight());
-            this.$element.css('height', timelineHeight + ((this._layerCount + 1) * this.options.timelineSpacing));
+            var timelineHeight = parseInt(this.$element.find('.tl-timeline:first').outerHeight());
+            var timelineCount  = this.$element.find('.tl-timeline').length || 1;
+
+            this.$element.css('height', timelineHeight + (timelineCount * this.options.timelineSpacing));
         },
 
         addEventHandlers: function () {
