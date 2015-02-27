@@ -52,7 +52,6 @@
         line-height: 1;
         transform: translateX(-50%);
         span {
-            content: "";
             background: #aaa;
             background: rgba(0,0,0,.1);
             left: 50%;
@@ -60,6 +59,12 @@
             height: 200px;
             top: -200px;
             position: absolute;
+        }
+        &.is-today {
+            color: #f00;
+            span {
+                background: #f00;
+            }
         }
     }
 }

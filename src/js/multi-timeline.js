@@ -104,14 +104,20 @@
         },
 
         addTimeUnit: function ($time, label, position) {
+            var isToday = false;
             if (moment.isMoment(label)) {
                 label = label.format(this.options.dateFormat);
+                isToday = (label === moment().format(this.options.dateFormat));
             }
-            $('<li class="tl-time__unit">')
+            var $unit = $('<li class="tl-time__unit">')
                 .html(label)
                 .css({left: (position * this._percentagePerDay) + '%'})
-                .append('<span>')
-                .appendTo($time);
+                .append('<span>');
+
+            if(isToday) {
+                $unit.addClass('is-today');
+            }
+            $unit.appendTo($time);
         },
 
         getDuration: function (from, to) {
@@ -189,7 +195,7 @@
 
         setWrapperDimensions: function () {
             var timelineHeight = parseInt(this.$element.find('.tl-timeline:first').outerHeight());
-            var timelineCount  = this.$element.find('.tl-timeline').length || 1;
+            var timelineCount = this.$element.find('.tl-timeline').length || 1;
 
             this.$element.css('height', timelineHeight + (timelineCount * this.options.timelineSpacing));
         },
