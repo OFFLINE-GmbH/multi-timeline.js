@@ -13,6 +13,7 @@
             infinity: '9999-12-31',
             dawn: '0000-01-01',
             data: [],
+            useMousewheel: true,
             onTimelineClick: function (event, data) {
             },
             onZoomChange: function (newZoom) {
@@ -114,7 +115,7 @@
                 .css({left: (position * this._percentagePerDay) + '%'})
                 .append('<span>');
 
-            if(isToday) {
+            if (isToday) {
                 $unit.addClass('is-today');
             }
             $unit.appendTo($time);
@@ -226,25 +227,28 @@
                     e.preventDefault()
                 })
             }
-            this.$element.on('mousewheel DOMMouseScroll onmousewheel', function (e) {
-                var e = window.event || e;
-                var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
 
-                if (e.ctrlKey === true) {
-                    if (delta > 0) {
-                        that.zoomIn();
+            if (this.options.useMousewheel === true) {
+                this.$element.on('mousewheel DOMMouseScroll onmousewheel', function (e) {
+                    var e = window.event || e;
+                    var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+
+                    if (e.ctrlKey === true) {
+                        if (delta > 0) {
+                            that.zoomIn();
+                        } else {
+                            that.zoomOut();
+                        }
                     } else {
-                        that.zoomOut();
+                        if (delta > 0) {
+                            that.goLeft();
+                        } else {
+                            that.goRight();
+                        }
                     }
-                } else {
-                    if (delta > 0) {
-                        that.goLeft();
-                    } else {
-                        that.goRight();
-                    }
-                }
-                e.preventDefault();
-            });
+                    e.preventDefault();
+                });
+            }
             return this;
         },
 
@@ -261,7 +265,9 @@
             if (this.options.goLeftControl !== null) {
                 this.options.goLeftControl.off('click');
             }
-            this.$element.off('mousewheel DOMMouseScroll onmousewheel');
+            if (this.options.useMousewheel === true) {
+                this.$element.off('mousewheel DOMMouseScroll onmousewheel');
+            }
             return this;
         },
         setZoom: function (zoom) {
