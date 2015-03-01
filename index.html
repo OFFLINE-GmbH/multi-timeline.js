@@ -66,18 +66,18 @@ $(function () {
         <script>
             $(function () {
                 $('.simple-timeline').multiTimeline({
-                    start: '2015-02-18',
-                    end: '2015-03-01',
+                    start: moment().subtract(7, 'days').format('YYYY-MM-DD'),
+                    end: moment().add(7, 'days').format('YYYY-MM-DD'),
                     data: [
                         {
                             'title': 'Simple timeline',
-                            'start': '2015-02-20',
-                            'end': '2015-02-26'
+                            'start': moment().subtract(6, 'days').format('YYYY-MM-DD'),
+                            'end': moment().subtract(1, 'days').format('YYYY-MM-DD')
                         },
                         {
                             'title': 'Another timeline',
-                            'start': '2015-02-22',
-                            'end': '2015-02-24'
+                            'start': moment().add(1, 'days').format('YYYY-MM-DD'),
+                            'end': moment().add(6, 'days').format('YYYY-MM-DD')
                         }
                     ]
                 });
@@ -130,35 +130,35 @@ $(function () {
         <script>
             $(function () {
                 $('.advanced-timeline').multiTimeline({
-                    start: '2015-02-01',
-                    end: '2015-02-28',
+                    start: moment().subtract(12, 'days').format('YYYY-MM-DD'),
+                    end: moment().add(12, 'days').format('YYYY-MM-DD'),
                     data: [
                         {
                             'title': 'I have been here forever',
-                            'end': '2015-02-13'
+                            'end': moment().subtract(2, 'days').format('YYYY-MM-DD')
                         },
                         {
                             'title': 'I\'ll be here forever',
-                            'start': '2015-02-14'
+                            'start': moment().add(1, 'days').format('YYYY-MM-DD')
                         },
                         {
                             'title': 'I share a layer',
-                            'start': '2015-02-15',
-                            'end': '2015-02-18',
+                            'start': moment().add(3, 'days').format('YYYY-MM-DD'),
+                            'end': moment().add(6, 'days').format('YYYY-MM-DD'),
                             'layer': 0
                         },
                         {
                             'title': 'I am red and overlapping',
-                            'start': '2015-02-17',
-                            'end': '2015-02-22',
+                            'start': moment().add(5, 'days').format('YYYY-MM-DD'),
+                            'end': moment().add(10, 'days').format('YYYY-MM-DD'),
                             'color': '#f00',
                             'layer': 1,
                             'zIndex': 20
                         },
                         {
                             'title': 'I am pretty simple',
-                            'start': '2015-02-10',
-                            'end': '2015-02-12'
+                            'start': moment().subtract(7, 'days').format('YYYY-MM-DD'),
+                            'end': moment().subtract(4, 'days').format('YYYY-MM-DD')
                         },
                     ]
                 });
@@ -167,7 +167,7 @@ $(function () {
     </div>
     <hr/>
     <div class="row">
-        <h2>Timeline with controls</h2>
+        <h2>Timeline with controls (no mousewheel)</h2>
 
         <div class="controls-timeline"></div>
         <div class="controls">
@@ -194,6 +194,7 @@ $(function () {
 &#x3C;script&#x3E;
     $(function () {
         var timeline = $('.controls-timeline').multiTimeline({
+            useMousewheel: false,
             start: '2015-02-01',
             end: '2015-02-28',
             zoom: 4,
@@ -218,46 +219,47 @@ $(function () {
         <script>
             $(function () {
                 var timeline = $('.controls-timeline').multiTimeline({
-                    start: '2015-02-01',
-                    end: '2015-02-28',
                     zoom: 4,
                     zoomOutControl: $('.js-zoom-out'),
                     zoomInControl: $('.js-zoom-in'),
                     goRightControl: $('.js-go-right'),
                     goLeftControl: $('.js-go-left'),
+                    useMousewheel: false,
                     onZoomChange: function (newZoom) {
                         $('.js-set-zoom').val(newZoom);
                     },
                     onTimelineClick: function (event, data) {
                         alert('You clicked on a timeline: ' + data.title);
                     },
+                    start: moment().subtract(12, 'days').format('YYYY-MM-DD'),
+                    end: moment().add(12, 'days').format('YYYY-MM-DD'),
                     data: [
                         {
                             'title': 'I have been here forever',
-                            'end': '2015-02-13'
+                            'end': moment().subtract(2, 'days').format('YYYY-MM-DD')
                         },
                         {
                             'title': 'I\'ll be here forever',
-                            'start': '2015-02-14'
+                            'start': moment().add(1, 'days').format('YYYY-MM-DD')
                         },
                         {
                             'title': 'I share a layer',
-                            'start': '2015-02-15',
-                            'end': '2015-02-18',
+                            'start': moment().add(3, 'days').format('YYYY-MM-DD'),
+                            'end': moment().add(6, 'days').format('YYYY-MM-DD'),
                             'layer': 0
                         },
                         {
                             'title': 'I am red and overlapping',
-                            'start': '2015-02-17',
-                            'end': '2015-02-22',
+                            'start': moment().add(5, 'days').format('YYYY-MM-DD'),
+                            'end': moment().add(10, 'days').format('YYYY-MM-DD'),
                             'color': '#f00',
                             'layer': 1,
                             'zIndex': 20
                         },
                         {
                             'title': 'I am pretty simple',
-                            'start': '2015-02-10',
-                            'end': '2015-02-12'
+                            'start': moment().subtract(7, 'days').format('YYYY-MM-DD'),
+                            'end': moment().subtract(4, 'days').format('YYYY-MM-DD')
                         },
                     ]
                 });
