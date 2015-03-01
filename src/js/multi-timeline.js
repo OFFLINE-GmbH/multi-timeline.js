@@ -94,21 +94,22 @@
                 timeUnitCount++;
                 current = current.add(1, 'day');
                 label = current;
-                // write only every nth date to prevent overlap
-                if (this._daysCount > 10 && timeUnitCount % Math.round(this._daysCount / this.options.maxLabelCount) !== 0) {
+
+                if (this._daysCount > 10 // If there are more than 10 days
+                    && timeUnitCount % Math.round(this._daysCount / this.options.maxLabelCount) !== 0 // write only every nth date to prevent overlap
+                ) {
                     label = '';
                 }
-                this.addTimeUnit($time, label, (timeUnitCount + 1));
+                var isToday = current.isSame(new Date(), "day");
+                this.addTimeUnit($time, label, (timeUnitCount + 1), isToday);
 
             }
             $time.appendTo(this.$element);
         },
 
-        addTimeUnit: function ($time, label, position) {
-            var isToday = false;
+        addTimeUnit: function ($time, label, position, isToday) {
             if (moment.isMoment(label)) {
                 label = label.format(this.options.dateFormat);
-                isToday = (label === moment().format(this.options.dateFormat));
             }
             var $unit = $('<li class="tl-time__unit">')
                 .html(label)
