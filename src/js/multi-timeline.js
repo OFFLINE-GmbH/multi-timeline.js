@@ -104,14 +104,20 @@
         },
 
         addTimeUnit: function ($time, label, position) {
+            var isToday = false;
             if (moment.isMoment(label)) {
                 label = label.format(this.options.dateFormat);
+                isToday = (label === moment().format(this.options.dateFormat));
             }
-            $('<li class="tl-time__unit">')
+            var $unit = $('<li class="tl-time__unit">')
                 .html(label)
                 .css({left: (position * this._percentagePerDay) + '%'})
-                .append('<span>')
-                .appendTo($time);
+                .append('<span>');
+
+            if(isToday) {
+                $unit.addClass('is-today');
+            }
+            $unit.appendTo($time);
         },
 
         getDuration: function (from, to) {
@@ -172,7 +178,7 @@
                         'left': left + '%',
                         'visibility': visibility,
                         'bottom': (useLayer * that.options.timelineSpacing) + 20 + 'px',
-                        'background-color': (dataEntry.color !== undefined) ? dataEntry.color : '#333333',
+                        'background-color': (dataEntry.color !== undefined) ? dataEntry.color : null,
                         'z-index': (dataEntry.zIndex !== undefined) ? dataEntry.zIndex : 10
                     })
                     .addClass(tlOverflowLeft + ' ' + tlOverflowRight + ' ' + ((dataEntry.class !== undefined) ? dataEntry.class : '' ))
@@ -188,8 +194,10 @@
         },
 
         setWrapperDimensions: function () {
-            var timelineHeight = parseInt($('.tl-timeline:first').outerHeight());
-            this.$element.css('height', timelineHeight + (this._layerCount * this.options.timelineSpacing));
+            var timelineHeight = parseInt(this.$element.find('.tl-timeline:first').outerHeight());
+            var timelineCount = this.$element.find('.tl-timeline').length || 1;
+
+            this.$element.css('height', timelineHeight + (timelineCount * this.options.timelineSpacing));
         },
 
         addEventHandlers: function () {
@@ -218,6 +226,25 @@
                     e.preventDefault()
                 })
             }
+            this.$element.on('mousewheel DOMMouseScroll onmousewheel', function (e) {
+                var e = window.event || e;
+                var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+
+                if (e.ctrlKey === true) {
+                    if (delta > 0) {
+                        that.zoomIn();
+                    } else {
+                        that.zoomOut();
+                    }
+                } else {
+                    if (delta > 0) {
+                        that.goLeft();
+                    } else {
+                        that.goRight();
+                    }
+                }
+                e.preventDefault();
+            });
             return this;
         },
 
@@ -234,6 +261,7 @@
             if (this.options.goLeftControl !== null) {
                 this.options.goLeftControl.off('click');
             }
+            this.$element.off('mousewheel DOMMouseScroll onmousewheel');
             return this;
         },
         setZoom: function (zoom) {
