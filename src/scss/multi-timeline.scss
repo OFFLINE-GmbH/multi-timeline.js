@@ -5,6 +5,10 @@
     height: 120px;
     box-sizing: border-box;
     overflow: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .tl-timeline {
@@ -17,6 +21,10 @@
     overflow: hidden;
     box-sizing: border-box;
     cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     &__title {
         color: #fff;
         white-space: nowrap;
@@ -39,6 +47,10 @@
     font-size: 1em;
     border-top: 1px solid #333;
     box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     &:after {
         content: "";
         display: inline-block;

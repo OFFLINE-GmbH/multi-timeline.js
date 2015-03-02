@@ -9,13 +9,13 @@ module.exports = function (grunt) {
             //        , 'src/js/pushy.js'
             //        , 'src/js/app.js'
             //    ],
-            //    dest: 'src/js/concatinated.js'
+            //    dist: 'src/js/concatinated.js'
             //},
         },
         uglify: {
             js: {
                 src: 'src/js/multi-timeline.js',
-                dest: 'dest/multi-timeline.min.js'
+                dest: 'dist/multi-timeline.min.js'
             }
         },
         watch: {
@@ -38,13 +38,13 @@ module.exports = function (grunt) {
             }
         },
         sass: {
-            dist: {
+            dest: {
                 options: {
                     'sourcemap=none': true,
                     style: 'compressed'
                 },
                 files: {
-                    'dest/multi-timeline.min.css': 'src/scss/multi-timeline.scss'
+                    'dist/multi-timeline.min.css': 'src/scss/multi-timeline.scss'
                 }
             }
         }

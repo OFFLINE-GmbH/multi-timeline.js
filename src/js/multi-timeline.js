@@ -250,6 +250,57 @@
                     e.preventDefault();
                 });
             }
+
+            var delta = {x: 0, y: 0},
+                drag = {x: 0, y: 0, isDragging: false}
+
+            $('body').off('mousedown', '.tl-timeline').on('mousedown', '.tl-timeline', function (e) {
+
+                console.log(drag.isDragging);
+                if(drag.isDragging) return;
+                drag.isDragging = true;
+
+                var $drag = $(this);
+                $('body').css('cursor', 'move');
+                $drag.css('cursor', 'move');
+
+                drag.x = e.pageX;
+                drag.y = e.pageY;
+
+                var $mouseMoveTargets = $(this).parents();
+                $mouseMoveTargets.on("mousemove", function (e) {
+
+                    delta.x = e.pageX - drag.x;
+                    delta.y = e.pageY - drag.y;
+
+                    var currentOffset = $drag.offset();
+                    $drag.offset({
+                        left: (currentOffset.left + delta.x)
+                    });
+
+                    drag.x = e.pageX;
+                    drag.y = e.pageY;
+                });
+
+                $(document).on('mouseup', function () {
+
+                    if(!drag.isDragging) return;
+
+                    drag.isDragging = false;
+
+                    $('body').css('cursor', 'default');
+                    $drag.css('cursor', 'default');
+
+                    var oldLeft = $drag.css('left');
+                    var percentLeft = 100 / parseInt(that.$element.innerWidth()) * oldLeft;
+                    $drag.css({'left': percentLeft + '%'});
+
+                    $mouseMoveTargets.off('mousemove');
+                    $(document).off('mouseup');
+                });
+                e.preventDefault(); // disable selection
+            })
+
             return this;
         },
 
@@ -269,6 +320,7 @@
             if (this.options.useMousewheel === true) {
                 this.$element.off('mousewheel DOMMouseScroll onmousewheel');
             }
+            $('body').off('mousedown', '.tl-timeline');
             return this;
         },
         setZoom: function (zoom) {
