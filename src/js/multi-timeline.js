@@ -254,10 +254,9 @@
             var delta = {x: 0, y: 0},
                 drag = {x: 0, y: 0, isDragging: false}
 
-            $('body').off('mousedown', '.tl-timeline').on('mousedown', '.tl-timeline', function (e) {
+            that.$element.on('mousedown', '.tl-timeline', function (e) {
 
-                console.log(drag.isDragging);
-                if(drag.isDragging) return;
+                if (drag.isDragging) return;
                 drag.isDragging = true;
 
                 var $drag = $(this);
@@ -284,15 +283,16 @@
 
                 $(document).on('mouseup', function () {
 
-                    if(!drag.isDragging) return;
+                    if (!drag.isDragging) return;
 
                     drag.isDragging = false;
 
                     $('body').css('cursor', 'default');
                     $drag.css('cursor', 'default');
 
-                    var oldLeft = $drag.css('left');
+                    var oldLeft = parseInt($drag.css('left'));
                     var percentLeft = 100 / parseInt(that.$element.innerWidth()) * oldLeft;
+                    console.log(that.percentToDate(percentLeft));
                     $drag.css({'left': percentLeft + '%'});
 
                     $mouseMoveTargets.off('mousemove');
@@ -302,6 +302,15 @@
             })
 
             return this;
+        },
+
+        percentToDate: function(percent) {
+            var daysPercent = (this._daysCount + 1) / 100;
+            var addSeconds = parseInt((percent * daysPercent) * 24 * 60 * 60);
+
+            console.log(addSeconds);
+
+            return moment(this.options.start).add(addSeconds, 'seconds').format('YYYY-MM-DD HH:MM:SS');
         },
 
         removeEventHandlers: function () {
