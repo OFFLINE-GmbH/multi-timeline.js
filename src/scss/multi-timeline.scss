@@ -18,7 +18,6 @@
     bottom: 20px;
     padding: 5px;
     width: 100%;
-    overflow: hidden;
     box-sizing: border-box;
     cursor: pointer;
     -webkit-user-select: none;
@@ -32,6 +31,56 @@
         overflow: hidden;
         line-height: 1em;
         font-size: 1em;
+    }
+    &__date-start,
+    &__date-end {
+        position: absolute;
+        opacity: 0;
+        visibility: hidden;
+        left: 0;
+        top: -100%;
+        background: #000;
+        background: rgba(0,0,0,.5);
+        color: #FFF;
+        padding: 2px 5px;
+        display: inline-block;
+        -webkit-transition: opacity ease .2s 0s, visibility ease .2s 0s;
+        -moz-transition: opacity ease .2s 0s, visibility ease .2s 0s;
+        -ms-transition: opacity ease .2s 0s, visibility ease .2s 0s;
+        -o-transition: opacity ease .2s 0s, visibility ease .2s 0s;
+        transition: opacity ease .2s 0s, visibility ease .2s 0s;
+        &:before {
+            content: "";
+            height: 2px;
+            width: 2px;
+            background: #000;
+            background: rgba(0,0,0,.5);
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+        }
+    }
+    %date-end {
+        left: auto;
+        right: 0;
+    }
+    &__date-end {
+        @extend %date-end;
+        &:before {
+            @extend %date-end;
+        }
+    }
+
+    &:hover {
+        .tl-timeline__date-marker {
+            opacity: 1;
+            visibility: visible;
+            -webkit-transition-delay: .25s;
+            -moz-transition-delay: .25s;
+            -ms-transition-delay: .25s;
+            -o-transition-delay: .25s;
+            transition-delay: .25s;
+        }
     }
 }
 

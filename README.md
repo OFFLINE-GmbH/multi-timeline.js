@@ -61,10 +61,15 @@ These are possible config values. Shown are defaults.
         goLeftControl:    $('.go-left'),            // Element to trigger goLeft on click
         maxLabelCount:    20,                       // Max count of x-axis labels (lower it if your labels overlap)
         timelineSpacing:  30,                       // Vertical margin in pixels between two timelines 
-        dateFormat:       'DD/MM',                  // x-axis date format (moment.js format) 
+        xAxisDateFormat:  'DD/MM',                  // x-axis date format (moment.js format)
+         
+        markerDateFormat: 'YYYY-MM-DD',             // Date format for start and end markers (moment.js format) 
+                                                    // set to false to disable markers completely
+                                                      
         mousewheelPan:    true,                     // Pan timeline on scroll
         mousewheelZoom:   true,                     // Zoom timeline on ctrl + scroll
         
+        gridPrecision:    15,                       // In minutes, time gets rounded on drag
         allDraggable:     true,                     // Makes all timelines draggable (editable)
                                                     // to make only certain timelines draggable
                                                     // set to false and use the `draggable` key in 
@@ -75,6 +80,8 @@ These are possible config values. Shown are defaults.
         },
         onTimelineClick:  function(event, data) {   // Executed when a timeline is clicked. Receives js event and
                                                     // data specified in `data`
+        },
+        onDragEnd:  function(element)           {   // Executed when a timeline has been dragged
         },
         data: []                                    // Timeline data (see below)
     });
@@ -101,6 +108,18 @@ Each timeline is specified as an object and can receive the following attributes
     }
     
 If the `start` or `end` attributes are not specified, the timeline becomes infinite in corresponding direction.
+
+#### Get new data after modification
+
+You can use the `getData` method to gain access to the new data of timelines. Use the `onDragEnd` event to
+stay up to date:
+
+    var timeline = $('.multi-timeline').multiTimeline({
+        // Get modified data
+        onDragEnd: function(element, timeline) {
+            console.log(timeline.getData());
+        }
+    });
 
 ### External controls
 

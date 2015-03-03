@@ -5,7 +5,8 @@
         defaults = {
             start: moment().subtract(7, 'days').format('YYYY-MM-DD'),
             end: moment().add(7, 'days').format('YYYY-MM-DD'),
-            dateFormat: 'DD/MM',
+            xAxisDateFormat: 'DD/MM',
+            markerDateFormat: 'YYYY-MM-DD HH:mm',
             timelineSpacing: 30,
             zoomStep: 1,
             zoom: 5,
@@ -16,9 +17,12 @@
             mousewheelPan: true,
             mousewheelZoom: true,
             allDraggable: true,
+            gridPrecision: 15,
             onTimelineClick: function (event, data) {
             },
             onZoomChange: function (newZoom) {
+            },
+            onDragEnd: function (element, timeline) {
             },
             zoomInControl: null,
             zoomOutControl: null,
@@ -63,7 +67,8 @@
                 return false;
             }
 
-            this._daysCount = this.getDuration(this._startMoment, this._endMoment);
+            this._secondsCount = this.getDuration(this._startMoment, this._endMoment);
+            this._daysCount = this._secondsCount / 60 / 60 / 24;
             this._percentagePerDay = 100 / (this._daysCount + 1);
 
             this._timelineCount = this.options.data.length;
@@ -111,7 +116,7 @@
 
         addTimeUnit: function ($time, label, position, isToday) {
             if (moment.isMoment(label)) {
-                label = label.format(this.options.dateFormat);
+                label = label.format(this.options.xAxisDateFormat);
             }
             var $unit = $('<li class="tl-time__unit">')
                 .html(label)
@@ -126,26 +131,27 @@
 
         getDuration: function (from, to) {
             var duration = moment.duration(to.diff(from));
-            return duration.asDays();
+            return duration.asSeconds();
         },
 
         addTimelines: function () {
             var that = this;
             var currentLayer = 0;
 
-            $(this.options.data).each(function () {
+            $(this.options.data).each(function (key) {
                 var dataEntry = this;
 
                 if (dataEntry.end == undefined) {
                     dataEntry.end = that.options.infinity;
                 }
-
                 if (dataEntry.start == undefined) {
                     dataEntry.start = that.options.dawn;
                 }
 
                 var duration = that.getDuration(moment(dataEntry.start), moment(dataEntry.end));
+                var durationInDays = duration / 60 / 60 / 24;
                 var startOffset = that.getDuration(moment(that.options.start), moment(dataEntry.start));
+                var startOffsetInDays = startOffset / 60 / 60 / 24;
 
                 var useLayer;
                 if (dataEntry.layer === undefined) {
@@ -155,28 +161,42 @@
                     useLayer = dataEntry.layer;
                 }
 
-                // Check if timline overflows wrapper
+                // Check if timeline overflows wrapper
                 var tlOverflowLeft = '', tlOverflowRight = '';
                 if (startOffset < 0) {
                     duration = duration + startOffset;
                     startOffset = 0;
                     tlOverflowLeft = 'tl-overflow-left';
                 }
-                var width = duration * that._percentagePerDay;
-                if ((startOffset + duration) > that._daysCount + 1) {
+                var width = durationInDays * that._percentagePerDay;
+                if ((startOffsetInDays + durationInDays) > that._daysCount + 1) {
                     tlOverflowRight = 'tl-overflow-right';
                     width = 100;
                 }
-                var left = startOffset * that._percentagePerDay;
-                if (startOffset > that._daysCount + 1) {
+                var left = startOffsetInDays * that._percentagePerDay;
+                if ((startOffsetInDays) > (that._daysCount + 1)) {
                     left = 100;
                 }
                 var visibility = (duration < 0) ? 'hidden' : 'visible';
                 var title = (dataEntry.title !== undefined) ? dataEntry.title : '&nbsp;';
 
+                var html = '';
+                if (dataEntry.start != that.options.dawn && that.options.markerDateFormat !== false) {
+                    html += '<div class="tl-timeline__date-marker tl-timeline__date-start">';
+                    html += moment(dataEntry.start).format(that.options.markerDateFormat)
+                    html += '</div>';
+                }
+                html += '<div class="tl-timeline__title">' + title + '</div>'
+
+                if (dataEntry.end != that.options.infinity && that.options.markerDateFormat !== false) {
+                    html += '<div class="tl-timeline__date-marker tl-timeline__date-end">';
+                    html += moment(dataEntry.end).format(that.options.markerDateFormat);
+                    html += '</div>'
+                }
+
                 // Add Timeline
                 var $timeline = $('<div class="tl-timeline">')
-                    .html('<div class="tl-timeline__title">' + title + '</div>')
+                    .html(html)
                     .css({
                         'width': width + '%',
                         'left': left + '%',
@@ -186,7 +206,12 @@
                         'z-index': (dataEntry.zIndex !== undefined) ? dataEntry.zIndex : 10
                     })
                     .addClass(tlOverflowLeft + ' ' + tlOverflowRight + ' ' + ((dataEntry.class !== undefined) ? dataEntry.class : '' ))
-                    .attr({"data-startOffset": startOffset, "data-duration": duration, "title": title})
+                    .attr({
+                        "data-tl-start-offset": startOffset,
+                        "data-tl-duration": duration,
+                        "data-tl-identifier": key,
+                        "title": title
+                    })
                     .on('click', function (event) {
                         that.options.onTimelineClick(event, dataEntry);
                     });
@@ -197,6 +222,10 @@
 
                 $timeline.prependTo(that.$element);
 
+                if (parseInt($timeline.outerWidth()) < 140) {
+                    $timeline.find('.tl-timeline__date-end').remove();
+                }
+
             });
             this._layerCount = currentLayer;
             return this;
@@ -206,7 +235,7 @@
             var timelineHeight = parseInt(this.$element.find('.tl-timeline:first').outerHeight());
             var timelineCount = this.$element.find('.tl-timeline').length || 1;
 
-            this.$element.css('height', timelineHeight + (timelineCount * this.options.timelineSpacing));
+            this.$element.css('height', timelineHeight + ((timelineCount + 1) * this.options.timelineSpacing));
         },
 
         addEventHandlers: function () {
@@ -247,7 +276,7 @@
                         } else {
                             that.zoomOut();
                         }
-                    } else if (this.options.mousewheelPan === true) {
+                    } else if (that.options.mousewheelPan === true) {
                         if (delta > 0) {
                             that.goLeft();
                         } else {
@@ -280,9 +309,15 @@
                     delta.y = e.pageY - drag.y;
 
                     var currentOffset = $drag.offset();
+                    var newLeft = (currentOffset.left + delta.x)
                     $drag.offset({
-                        left: (currentOffset.left + delta.x)
+                        left: newLeft
                     });
+
+                    var pxLeft = parseInt($drag.css('left'));
+                    var percentLeft = 100 / parseInt(that.$element.innerWidth()) * pxLeft;
+
+                    that.updateDates($drag, that.percentToDate(percentLeft));
 
                     drag.x = e.pageX;
                     drag.y = e.pageY;
@@ -299,8 +334,10 @@
 
                     var oldLeft = parseInt($drag.css('left'));
                     var percentLeft = 100 / parseInt(that.$element.innerWidth()) * oldLeft;
-                    console.log(that.percentToDate(percentLeft));
+
                     $drag.css({'left': percentLeft + '%'});
+
+                    that.options.onDragEnd($drag, that);
 
                     $mouseMoveTargets.off('mousemove');
                     $(document).off('mouseup');
@@ -311,13 +348,34 @@
             return this;
         },
 
+        updateDates: function ($element, startDate) {
+
+            var endDate = moment(startDate.format('YYYY-MM-DD HH:mm:ss'));
+            endDate = endDate.add($element.data('tl-duration'), 'seconds');
+
+            // Update data objects
+            this.options.data[$element.data('tl-identifier')].start = startDate.format('YYYY-MM-DD HH:mm:ss');
+            this.options.data[$element.data('tl-identifier')].end = endDate.format('YYYY-MM-DD HH:mm:ss');
+
+            // Update markers
+            if (this.options.markerDateFormat !== false) {
+                $element.find('.tl-timeline__date-start').html(startDate.format(this.options.markerDateFormat));
+            }
+            if (this.options.markerDateFormat !== false) {
+                $element.find('.tl-timeline__date-end').html(endDate.format(this.options.markerDateFormat));
+            }
+
+        },
+
         percentToDate: function (percent) {
             var daysPercent = (this._daysCount + 1) / 100;
-            var addSeconds = parseInt((percent * daysPercent) * 24 * 60 * 60);
+            var add = parseInt((percent * daysPercent) * 24 * 60 * 60);
 
-            console.log(addSeconds);
-
-            return moment(this.options.start).add(addSeconds, 'seconds').format('YYYY-MM-DD HH:MM:SS');
+            var date = moment(this.options.start).add(add, 'seconds');
+            var minutes = date.get('minute');
+            date.set('minute', Math.round(minutes / this.options.gridPrecision) * this.options.gridPrecision);
+            date.set('second', 0);
+            return date;
         },
 
         removeEventHandlers: function () {
@@ -336,7 +394,7 @@
             if (this.options.mousewheelPan === true || this.options.mousewheelZoom === true) {
                 this.$element.off('mousewheel DOMMouseScroll onmousewheel');
             }
-            this.$element.off('mousedown', '.tl-timeline');
+            this.$element.off('mousedown', '.tl-timeline.is-draggable');
             return this;
         },
         setZoom: function (zoom) {
@@ -401,6 +459,9 @@
         },
         redraw: function () {
             this.reset().init();
+        },
+        getData: function () {
+            return this.options.data;
         }
     };
 

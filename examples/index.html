@@ -34,10 +34,13 @@
         $('.simple-timeline').multiTimeline({
             start: '2015-02-18',
             end: '2015-03-01',
+            onDragEnd: function(element, timeline) {
+                console.log(timeline.getData());
+            },
             data: [
                 {
                     'title': 'Simple timeline',
-                    'start': '2015-02-20',
+                    'start': '2015-02-20 12:15',
                     'end': '2015-02-26'
                 },
                 {
@@ -97,6 +100,8 @@
 <!-- ============================================== -->
 
 <h2>Timeline with controls</h2>
+
+<div class="controls-timeline"></div>
 
 <div class="controls">
     <button type="button" class="js-go-left">Go left</button>
