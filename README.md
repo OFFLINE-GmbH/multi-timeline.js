@@ -62,6 +62,14 @@ These are possible config values. Shown are defaults.
         maxLabelCount:    20,                       // Max count of x-axis labels (lower it if your labels overlap)
         timelineSpacing:  30,                       // Vertical margin in pixels between two timelines 
         dateFormat:       'DD/MM',                  // x-axis date format (moment.js format) 
+        mousewheelPan:    true,                     // Pan timeline on scroll
+        mousewheelZoom:   true,                     // Zoom timeline on ctrl + scroll
+        
+        allDraggable:     true,                     // Makes all timelines draggable (editable)
+                                                    // to make only certain timelines draggable
+                                                    // set to false and use the `draggable` key in 
+                                                    // your timeline data object
+                                                    
         onZoomChange:     function(newZoom) {       // Executed when zoom changes
             
         },
@@ -83,9 +91,13 @@ Each timeline is specified as an object and can receive the following attributes
         class:  'important',                // Additional class for .tl-timeline elements
         zIndex: 10,                         // z-index for this timeline (to manage overlaps)
         
-        layer: 0                            // Each timeline is on it's own layer (always one higher than the one 
+        layer: 0,                           // Each timeline is on it's own layer (always one higher than the one 
                                             // before). If you set a specific layer, it's possible for two 
                                             // timelines to share the same layer.
+                                            
+        draggable: true                     // Use when `allDraggable` is set to `false` 
+                                            // makes this specific timeline draggable
+            
     }
     
 If the `start` or `end` attributes are not specified, the timeline becomes infinite in corresponding direction.

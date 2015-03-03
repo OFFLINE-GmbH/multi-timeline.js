@@ -13,7 +13,9 @@
             infinity: '9999-12-31',
             dawn: '0000-01-01',
             data: [],
-            useMousewheel: true,
+            mousewheelPan: true,
+            mousewheelZoom: true,
+            allDraggable: true,
             onTimelineClick: function (event, data) {
             },
             onZoomChange: function (newZoom) {
@@ -173,7 +175,7 @@
                 var title = (dataEntry.title !== undefined) ? dataEntry.title : '&nbsp;';
 
                 // Add Timeline
-                $('<div class="tl-timeline">')
+                var $timeline = $('<div class="tl-timeline">')
                     .html('<div class="tl-timeline__title">' + title + '</div>')
                     .css({
                         'width': width + '%',
@@ -187,8 +189,13 @@
                     .attr({"data-startOffset": startOffset, "data-duration": duration, "title": title})
                     .on('click', function (event) {
                         that.options.onTimelineClick(event, dataEntry);
-                    })
-                    .prependTo(that.$element);
+                    });
+
+                if (that.options.allDraggable === true || dataEntry.draggable === true) {
+                    $timeline.addClass('is-draggable');
+                }
+
+                $timeline.prependTo(that.$element);
 
             });
             this._layerCount = currentLayer;
@@ -229,18 +236,18 @@
                 })
             }
 
-            if (this.options.useMousewheel === true) {
+            if (this.options.mousewheelPan === true || this.options.mousewheelZoom === true) {
                 this.$element.on('mousewheel DOMMouseScroll onmousewheel', function (e) {
                     var e = window.event || e;
                     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
 
-                    if (e.ctrlKey === true) {
+                    if (e.ctrlKey === true && this.options.mousewheelZoom === true) {
                         if (delta > 0) {
                             that.zoomIn();
                         } else {
                             that.zoomOut();
                         }
-                    } else {
+                    } else if (this.options.mousewheelPan === true) {
                         if (delta > 0) {
                             that.goLeft();
                         } else {
@@ -252,9 +259,9 @@
             }
 
             var delta = {x: 0, y: 0},
-                drag = {x: 0, y: 0, isDragging: false}
+                drag = {x: 0, y: 0, isDragging: false};
 
-            that.$element.on('mousedown', '.tl-timeline', function (e) {
+            that.$element.on('mousedown', '.tl-timeline.is-draggable', function (e) {
 
                 if (drag.isDragging) return;
                 drag.isDragging = true;
@@ -299,12 +306,12 @@
                     $(document).off('mouseup');
                 });
                 e.preventDefault(); // disable selection
-            })
+            });
 
             return this;
         },
 
-        percentToDate: function(percent) {
+        percentToDate: function (percent) {
             var daysPercent = (this._daysCount + 1) / 100;
             var addSeconds = parseInt((percent * daysPercent) * 24 * 60 * 60);
 
@@ -326,10 +333,10 @@
             if (this.options.goLeftControl !== null) {
                 this.options.goLeftControl.off('click');
             }
-            if (this.options.useMousewheel === true) {
+            if (this.options.mousewheelPan === true || this.options.mousewheelZoom === true) {
                 this.$element.off('mousewheel DOMMouseScroll onmousewheel');
             }
-            $('body').off('mousedown', '.tl-timeline');
+            this.$element.off('mousedown', '.tl-timeline');
             return this;
         },
         setZoom: function (zoom) {
@@ -352,7 +359,7 @@
             this._zoom = this._zoom + levels;
             this.options.onZoomChange(this._zoom);
 
-            this.reset().init();
+            this.redraw();
         },
         zoomIn: function (levels) {
             if (levels === undefined) {
@@ -366,31 +373,34 @@
                 this.options.end = newEnd.format('YYYY-MM-DD');
                 this._zoom = this._zoom - levels;
                 this.options.onZoomChange(this._zoom);
-                this.reset().init();
+                this.redraw();
             }
         },
         goRight: function () {
 
-            var jump = Math.round(this._daysCount / 12);
+            var jump = Math.ceil(this._daysCount / 12);
 
             this.options.start = moment(this.options.start).add(jump, 'days').format('YYYY-MM-DD');
             this.options.end = moment(this.options.end).add(jump, 'days').format('YYYY-MM-DD');
-            this.reset().init();
+            this.redraw();
 
         },
         goLeft: function () {
 
-            var jump = Math.round(this._daysCount / 12);
-
+            var jump = Math.ceil(this._daysCount / 12);
             this.options.start = moment(this.options.start).subtract(jump, 'days').format('YYYY-MM-DD');
             this.options.end = moment(this.options.end).subtract(jump, 'days').format('YYYY-MM-DD');
 
-            this.reset().init();
+            this.redraw();
+
         },
         reset: function () {
             this.$element.html('');
             this.removeEventHandlers();
             return this;
+        },
+        redraw: function () {
+            this.reset().init();
         }
     };
 
