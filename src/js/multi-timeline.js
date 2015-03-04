@@ -87,7 +87,7 @@
                 .setReady()
         },
 
-        setReady: function() {
+        setReady: function () {
             this.$element.addClass('is-ready');
             return this;
         },
@@ -290,17 +290,23 @@
         setWrapperDimensions: function () {
             var timelineHeight = 0;
             var that = this;
+            var outerWidth = this.$element.outerWidth();
+
             this.$element.find('.tl-timeline').each(function () {
-                var layer = $(this).data('tl-layer');
-                if (layer > that._highestLayer)
-                    that._highestLayer = layer;
+                var left = 100 / outerWidth * parseInt($(this).css('left'));
 
-                if (timelineHeight === 0)
-                    that.timelineHeight = parseInt($(this).outerHeight());
+                // only look for timlines that are currently on screen
+                if (left > 0 && left < 100) {
+                    var layer = $(this).data('tl-layer');
+                    if (layer > that._highestLayer)
+                        that._highestLayer = layer;
 
+                    if (timelineHeight === 0)
+                        that.timelineHeight = parseInt($(this).outerHeight());
+                }
             });
 
-                                               // space for two layers
+            // space for two layers
             var totalHeight = timelineHeight + ((this._highestLayer + 2) * this.options.timelineSpacing);
 
             // add space for markers
