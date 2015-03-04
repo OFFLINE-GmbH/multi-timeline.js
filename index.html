@@ -38,15 +38,24 @@
             <p><a href="https://github.com/OFFLINE-GmbH/multi-timeline.js" class="btn btn-primary btn-lg">View on GitHub</a></p>
         </div>
 
-        <h2>Simple timeline</h2>
+        <h2>Static timeline</h2>
 
-        <div class="simple-timeline"></div>
+        <div class="static-timeline"></div>
 
         <pre>
 $(function () {
-    $('.simple-timeline').multiTimeline({
+    $('.static-timeline').multiTimeline({
+        
+        allDraggable: false,
+        allResizeable: false,
+        mousewheelPan: false,
+        mousewheelZoom: false,
+
+        markerDateFormat: false,  // Hide datemarkers
+
         start: '2015-02-18',
         end: '2015-03-01',
+        
         data: [
             {
                 'title': 'Simple timeline',
@@ -65,17 +74,22 @@ $(function () {
 
         <script>
             $(function () {
-                $('.simple-timeline').multiTimeline({
+                $('.static-timeline').multiTimeline({
                     start: moment().subtract(7, 'days').format('YYYY-MM-DD'),
                     end: moment().add(7, 'days').format('YYYY-MM-DD'),
+                    allDraggable: false,
+                    allResizeable: false,
+                    markerDateFormat: false,
+                    mousewheelPan: false,
+                    mousewheelZoom: false,
                     data: [
                         {
-                            'title': 'Simple timeline',
+                            'title': 'Static timeline',
                             'start': moment().subtract(6, 'days').format('YYYY-MM-DD'),
                             'end': moment().subtract(1, 'days').format('YYYY-MM-DD')
                         },
                         {
-                            'title': 'Another timeline',
+                            'title': 'Another static timeline',
                             'start': moment().add(1, 'days').format('YYYY-MM-DD'),
                             'end': moment().add(6, 'days').format('YYYY-MM-DD')
                         }
@@ -87,12 +101,11 @@ $(function () {
     <div class="row">
         <hr/>
 
-        <h2>Advanced timeline</h2>
-
-        <div class="advanced-timeline"></div>
+        <h2>Editable timeline <small>Use mousewheel to pan (Press Ctrl to zoom)</small></h2>
+        <div class="editable-timeline"></div>
 <pre>
 $(function () {
-    $('.advanced-timeline').multiTimeline({
+    $('.editable-timeline').multiTimeline({
         start: '2015-02-01',
         end: '2015-02-28',
         data: [
@@ -129,7 +142,7 @@ $(function () {
 </pre>
         <script>
             $(function () {
-                $('.advanced-timeline').multiTimeline({
+                $('.editable-timeline').multiTimeline({
                     start: moment().subtract(12, 'days').format('YYYY-MM-DD'),
                     end: moment().add(12, 'days').format('YYYY-MM-DD'),
                     data: [
@@ -144,7 +157,7 @@ $(function () {
                         {
                             'title': 'I share a layer',
                             'start': moment().add(3, 'days').format('YYYY-MM-DD'),
-                            'end': moment().add(6, 'days').format('YYYY-MM-DD'),
+                            'end': moment().add(9, 'days').format('YYYY-MM-DD'),
                             'layer': 0
                         },
                         {
@@ -157,15 +170,15 @@ $(function () {
                         },
                         {
                             'title': 'I am pretty simple',
-                            'start': moment().subtract(7, 'days').format('YYYY-MM-DD'),
-                            'end': moment().subtract(4, 'days').format('YYYY-MM-DD')
+                            'start': moment().subtract(9, 'days').format('YYYY-MM-DD'),
+                            'end': moment().subtract(1, 'days').format('YYYY-MM-DD')
                         },
                     ]
                 });
             })
         </script>
     </div>
-    <hr/>
+    <hr>
     <div class="row">
         <h2>Timeline with controls (no mousewheel)</h2>
 
@@ -194,7 +207,9 @@ $(function () {
 &#x3C;script&#x3E;
     $(function () {
         var timeline = $('.controls-timeline').multiTimeline({
-            useMousewheel: false,
+            mousewheelZoom: false,
+            mousewheelZoom: false,
+
             start: '2015-02-01',
             end: '2015-02-28',
             zoom: 4,
@@ -224,7 +239,8 @@ $(function () {
                     zoomInControl: $('.js-zoom-in'),
                     goRightControl: $('.js-go-right'),
                     goLeftControl: $('.js-go-left'),
-                    useMousewheel: false,
+                    mousewheelPan: false,
+                    mousewheelZoom: false,
                     onZoomChange: function (newZoom) {
                         $('.js-set-zoom').val(newZoom);
                     },
