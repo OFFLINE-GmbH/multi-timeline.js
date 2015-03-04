@@ -2,13 +2,24 @@
     font-size: 12px;
     position: relative;
     width: 100%;
-    height: 120px;
+    height: 0;
+    opacity: 0;
+    visibility: hidden;
     box-sizing: border-box;
     overflow: hidden;
+    -webkit-transition: height .5s ease, visibility .5s ease, opacity .5s ease;
+    -moz-transition: height .5s ease, visibility .5s ease, opacity .5s ease;
+    -ms-transition: height .5s ease, visibility .5s ease, opacity .5s ease;
+    -o-transition: height .5s ease, visibility .5s ease, opacity .5s ease;
+    transition: height .5s ease, visibility .5s ease, opacity .5s ease;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    &.is-ready {
+        opacity: 1;
+        visibility: visible;
+    }
 }
 
 .tl-timeline {

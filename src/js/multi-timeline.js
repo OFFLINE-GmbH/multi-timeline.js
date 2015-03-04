@@ -83,7 +83,13 @@
                 .createStructure()
                 .addTimelines()
                 .addEventHandlers()
-                .setWrapperDimensions();
+                .setWrapperDimensions()
+                .setReady()
+        },
+
+        setReady: function() {
+            this.$element.addClass('is-ready');
+            return this;
         },
 
         createStructure: function () {
@@ -301,6 +307,7 @@
                 .css('height', totalHeight)
                 .find('.tl-time__unit span').css({'height': totalHeight, 'top': totalHeight * (-1)});
 
+            return this;
         },
 
         addEventHandlers: function () {
@@ -481,6 +488,9 @@
 
                     $mouseMoveTargets.off('mousemove');
                     $(document).off('mouseup');
+
+                    that._highestLayer = 1;
+                    that.setWrapperDimensions();
 
                 });
                 e.preventDefault(); // disable selection
