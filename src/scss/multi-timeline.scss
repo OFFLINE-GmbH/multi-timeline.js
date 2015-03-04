@@ -5,6 +5,10 @@
     height: 120px;
     box-sizing: border-box;
     overflow: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .tl-timeline {
@@ -12,11 +16,14 @@
     position: absolute;
     left: 0;
     bottom: 20px;
-    padding: 5px;
+    padding: 5px 10px;
     width: 100%;
-    overflow: hidden;
     box-sizing: border-box;
     cursor: pointer;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     &__title {
         color: #fff;
         white-space: nowrap;
@@ -24,6 +31,87 @@
         overflow: hidden;
         line-height: 1em;
         font-size: 1em;
+    }
+    &__date-start,
+    &__date-end {
+        position: absolute;
+        opacity: 0;
+        visibility: hidden;
+        left: 0;
+        top: -100%;
+        background: #000;
+        background: rgba(0,0,0,.5);
+        color: #FFF;
+        padding: 2px 5px;
+        display: inline-block;
+        -webkit-transition: opacity ease .2s 0s, visibility ease .2s 0s;
+        -moz-transition: opacity ease .2s 0s, visibility ease .2s 0s;
+        -ms-transition: opacity ease .2s 0s, visibility ease .2s 0s;
+        -o-transition: opacity ease .2s 0s, visibility ease .2s 0s;
+        transition: opacity ease .2s 0s, visibility ease .2s 0s;
+        &:before {
+            content: "";
+            height: 2px;
+            width: 2px;
+            background: #000;
+            background: rgba(0,0,0,.5);
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+        }
+    }
+    %pushRight {
+        left: auto;
+        right: 0;
+    }
+    &__date-end {
+        @extend %pushRight;
+        &:before {
+            @extend %pushRight;
+        }
+    }
+
+    &__resizer-start,
+    &__resizer-end {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 6px;
+        background: #666;
+        cursor: w-resize;
+        opacity: 0;
+        white-space: nowrap;
+        visibility: hidden;
+        -webkit-transition: opacity ease .2s;
+        -moz-transition: opacity ease .2s;
+        -ms-transition: opacity ease .2s;
+        -o-transition: opacity ease .2s;
+        transition: opacity ease .2s;
+        &:hover {
+            opacity: 1;
+        }
+    }
+    &__resizer-end {
+        @extend %pushRight;
+        cursor: e-resize;
+    }
+
+    &.is-hovered {
+        .tl-timeline__date-marker {
+            opacity: 1;
+            visibility: visible;
+            -webkit-transition-delay: .25s;
+            -moz-transition-delay: .25s;
+            -ms-transition-delay: .25s;
+            -o-transition-delay: .25s;
+            transition-delay: .25s;
+        }
+    }
+    &.is-resizeable {
+        .tl-timeline__resizer {
+            visibility: visible;
+        }
     }
 }
 
@@ -39,6 +127,10 @@
     font-size: 1em;
     border-top: 1px solid #333;
     box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
     &:after {
         content: "";
         display: inline-block;
