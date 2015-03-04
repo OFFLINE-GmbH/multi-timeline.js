@@ -300,8 +300,11 @@
 
             });
 
-            // space for two layers
+                                               // space for two layers
             var totalHeight = timelineHeight + ((this._highestLayer + 2) * this.options.timelineSpacing);
+
+            // add space for markers
+            totalHeight = totalHeight + 5;
 
             this.$element
                 .css('height', totalHeight)
