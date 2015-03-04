@@ -71,6 +71,9 @@
         $('.advanced-timeline').multiTimeline({
             start: '2015-02-01',
             end: '2015-02-28',
+            onEdit: function(element, timeline) {
+                console.log('edited', timeline.getData());
+            },
             data: [
                 {
                     'title': 'I have been here forever',

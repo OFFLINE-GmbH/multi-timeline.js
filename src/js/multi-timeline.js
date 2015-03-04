@@ -44,6 +44,7 @@
         this._name = pluginName;
         this._zoom = 5;
         this._layerCount = 0;
+        this._highestLayer = 1;
 
         this.init();
 
@@ -145,17 +146,21 @@
 
             $(this.options.data).each(function (key) {
                 var toMouseOut;
-
+                var isInfinite = {past: false, future: false};
                 var dataEntry = this;
 
-                if (dataEntry.end == undefined) {
+
+                if (dataEntry.end == undefined || dataEntry.start == that.options.infinity) {
+                    isInfinite.end = true;
                     dataEntry.end = that.options.infinity;
                 }
-                if (dataEntry.start == undefined) {
+                if (dataEntry.start == undefined || dataEntry.start == that.options.dawn) {
+                    isInfinite.start = true;
                     dataEntry.start = that.options.dawn;
                 }
 
                 var duration = that.getDuration(moment(dataEntry.start), moment(dataEntry.end));
+
                 var durationInDays = duration / 60 / 60 / 24;
                 var startOffset = that.getDuration(moment(that.options.start), moment(dataEntry.start));
                 var startOffsetInDays = startOffset / 60 / 60 / 24;
@@ -164,6 +169,7 @@
                 if (dataEntry.layer === undefined) {
                     useLayer = currentLayer;
                     currentLayer++;
+                    that.options.data[key].layer = useLayer;
                 } else {
                     useLayer = dataEntry.layer;
                 }
@@ -172,7 +178,8 @@
                 var tlOverflowLeft = '', tlOverflowRight = '';
                 if (startOffset < 0) {
                     duration = duration + startOffset;
-                    startOffset = 0;
+                    durationInDays = duration / 60 / 60 / 24;
+                    startOffsetInDays = startOffset = 0;
                     tlOverflowLeft = 'tl-overflow-left';
                 }
                 var width = durationInDays * that._percentagePerDay;
@@ -204,6 +211,7 @@
                         "data-tl-start-offset": startOffset,
                         "data-tl-duration": duration,
                         "data-tl-identifier": key,
+                        "data-tl-layer": useLayer,
                         "title": dataEntry.title
                     })
                     .on('click', function (event) {
@@ -226,6 +234,12 @@
                 }
                 if (that.options.allResizeable === true || dataEntry.resizeable === true) {
                     $timeline.addClass('is-resizeable');
+                }
+                if (isInfinite.start === true) {
+                    $timeline.addClass('is-infinite-start');
+                }
+                if (isInfinite.end === true) {
+                    $timeline.addClass('is-infinite-end');
                 }
 
                 $timeline.prependTo(that.$element);
@@ -268,10 +282,25 @@
         },
 
         setWrapperDimensions: function () {
-            var timelineHeight = parseInt(this.$element.find('.tl-timeline:first').outerHeight());
-            var timelineCount = this.$element.find('.tl-timeline').length || 1;
+            var timelineHeight = 0;
+            var that = this;
+            this.$element.find('.tl-timeline').each(function () {
+                var layer = $(this).data('tl-layer');
+                if (layer > that._highestLayer)
+                    that._highestLayer = layer;
 
-            this.$element.css('height', timelineHeight + ((timelineCount + 1) * this.options.timelineSpacing));
+                if (timelineHeight === 0)
+                    that.timelineHeight = parseInt($(this).outerHeight());
+
+            });
+
+            // space for two layers
+            var totalHeight = timelineHeight + ((this._highestLayer + 2) * this.options.timelineSpacing);
+
+            this.$element
+                .css('height', totalHeight)
+                .find('.tl-time__unit span').css({'height': totalHeight, 'top': totalHeight * (-1)});
+
         },
 
         addEventHandlers: function () {
@@ -332,10 +361,12 @@
                 if ($(this).hasClass('is-draggable')) {
                     mode = 'move';
                 }
-                if ($(e.target).hasClass('tl-timeline__resizer-start') && $(this).hasClass('is-resizeable')) {
-                    mode = 'w-resize';
-                } else if ($(e.target).hasClass('tl-timeline__resizer-end') && $(this).hasClass('is-resizeable')) {
-                    mode = 'e-resize';
+                if ($(this).hasClass('is-resizeable')) {
+                    if ($(e.target).hasClass('tl-timeline__resizer-start') || $(this).hasClass('is-infinite-end')) {
+                        mode = 'w-resize';
+                    } else if ($(e.target).hasClass('tl-timeline__resizer-end') || $(this).hasClass('is-infinite-start')) {
+                        mode = 'e-resize';
+                    }
                 }
 
                 if (mode === false) {
@@ -347,19 +378,55 @@
 
                 var $drag = $(this);
 
+
                 $('body').css('cursor', mode);
+                that.$element.find('.tl-timeline').css('z-index', 1000);
+
                 $drag
-                    .css('cursor', mode)
+                    .css({'z-index': 1050, 'cursor': mode})
                     .addClass('is-hovered is-dragging');
+
+
+                var startDrag = {x: e.pageX, y: e.pageY};
+                var totalDeltaY;
 
                 drag.x = e.pageX;
                 drag.y = e.pageY;
 
                 var $mouseMoveTargets = $(this).parents();
+
                 $mouseMoveTargets.on("mousemove", function (e) {
 
                     delta.x = e.pageX - drag.x;
                     delta.y = e.pageY - drag.y;
+
+                    var currentLayer = parseInt($drag.data('tl-layer'));
+                    totalDeltaY = startDrag.y - e.pageY;
+
+                    if (totalDeltaY > that.options.timelineSpacing) {
+
+                        $drag.css('bottom', ((currentLayer + 1) * that.options.timelineSpacing) + 20 + 'px');
+                        $drag.data('tl-layer', currentLayer + 1);
+
+                        startDrag.y = e.pageY;
+                        that.setWrapperDimensions();
+
+                    } else if (totalDeltaY < that.options.timelineSpacing * (-1)) {
+
+                        var useForSpacing = currentLayer - 1;
+                        if (useForSpacing < 0) {
+                            useForSpacing = 0;
+                            currentLayer = 1;
+                        }
+
+                        $drag.css('bottom', (useForSpacing * that.options.timelineSpacing) + 20 + 'px');
+                        $drag.data('tl-layer', currentLayer - 1);
+
+                        startDrag.y = e.pageY;
+                        that.setWrapperDimensions();
+                    }
+
+                    that.options.data[$drag.data('tl-identifier')].layer = currentLayer;
 
                     var currentOffset = $drag.offset();
                     var newLeft = (currentOffset.left + delta.x)
@@ -395,20 +462,17 @@
                 $(document).on('mouseup', function () {
 
                     if (!drag.isDragging) return;
-
                     drag.isDragging = false;
-
-                    $('body').css('cursor', 'default');
-                    $drag.css('cursor', 'default');
 
                     var oldLeft = parseInt($drag.css('left'));
                     var percentLeft = 100 / parseInt(that.$element.innerWidth()) * oldLeft;
 
+                    $('body').css('cursor', 'default');
                     $drag
-                        .css({'left': percentLeft + '%'})
+                        .css({'left': percentLeft + '%', cursor: 'default'})
                         .removeClass('is-dragging is-hovered');
 
-                    if(mode == 'move') {
+                    if (mode == 'move') {
                         that.options.onDragEnd($drag, that);
                     } else {
                         that.options.onResizeEnd($drag, that);
@@ -427,14 +491,26 @@
 
         updateDates: function ($element, startDate) {
 
+            if ($element.hasClass('is-infinite-start')) {
+                startDate = moment(this.options.dawn);
+            }
+
             var pxLeft = parseInt($element.css('left'));
             var percentLeft = 100 / parseInt(this.$element.innerWidth()) * (pxLeft + $element.outerWidth());
 
-            var endDate = this.percentToDate(percentLeft);
+            var endDate = ($element.hasClass('is-infinite-end')) ? moment(this.options.infinity) : this.percentToDate(percentLeft);
+
 
             // Update data objects
             this.options.data[$element.data('tl-identifier')].start = startDate.format('YYYY-MM-DD HH:mm:ss');
             this.options.data[$element.data('tl-identifier')].end = endDate.format('YYYY-MM-DD HH:mm:ss');
+
+            if ($element.hasClass('is-infinite-start')) {
+                delete this.options.data[$element.data('tl-identifier')].start;
+            }
+            if ($element.hasClass('is-infinite-end')) {
+                delete this.options.data[$element.data('tl-identifier')].end;
+            }
 
             $element.data('tl-duration', this.getDuration(startDate, endDate));
 

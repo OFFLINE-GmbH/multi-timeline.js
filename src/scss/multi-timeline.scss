@@ -20,10 +20,16 @@
     width: 100%;
     box-sizing: border-box;
     cursor: pointer;
+    z-index: 1000;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    -webkit-transition: opacity ease .2s;
+    -moz-transition: opacity ease .2s;
+    -ms-transition: opacity ease .2s;
+    -o-transition: opacity ease .2s;
+    transition: opacity ease .2s;
     &__title {
         color: #fff;
         white-space: nowrap;
@@ -40,10 +46,11 @@
         left: 0;
         top: -100%;
         background: #000;
-        background: rgba(0,0,0,.5);
+        background: rgba(0,0,0,.95);
         color: #FFF;
         padding: 2px 5px;
         display: inline-block;
+        pointer-events: none;
         -webkit-transition: opacity ease .2s 0s, visibility ease .2s 0s;
         -moz-transition: opacity ease .2s 0s, visibility ease .2s 0s;
         -ms-transition: opacity ease .2s 0s, visibility ease .2s 0s;
@@ -54,7 +61,7 @@
             height: 2px;
             width: 2px;
             background: #000;
-            background: rgba(0,0,0,.5);
+            background: rgba(0,0,0,.95);
             position: absolute;
             left: 0;
             bottom: -2px;
@@ -98,15 +105,21 @@
     }
 
     &.is-hovered {
+        z-index: 10000 !important;
+        opacity: .85;
         .tl-timeline__date-marker {
             opacity: 1;
             visibility: visible;
+            z-index: 10000;
             -webkit-transition-delay: .25s;
             -moz-transition-delay: .25s;
             -ms-transition-delay: .25s;
             -o-transition-delay: .25s;
             transition-delay: .25s;
         }
+    }
+    &.is-dragging {
+        z-index: 10005 !important;
     }
     &.is-resizeable {
         .tl-timeline__resizer {
