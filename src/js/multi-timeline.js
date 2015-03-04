@@ -44,6 +44,7 @@
         this._name = pluginName;
         this._zoom = 5;
         this._layerCount = 0;
+        this._highestLayer = 1;
 
         this.init();
 
@@ -209,6 +210,7 @@
                         "data-tl-start-offset": startOffset,
                         "data-tl-duration": duration,
                         "data-tl-identifier": key,
+                        "data-tl-layer": useLayer,
                         "title": dataEntry.title
                     })
                     .on('click', function (event) {
@@ -279,10 +281,25 @@
         },
 
         setWrapperDimensions: function () {
-            var timelineHeight = parseInt(this.$element.find('.tl-timeline:first').outerHeight());
-            var timelineCount = this.$element.find('.tl-timeline').length || 1;
+            var timelineHeight = 0;
+            var that = this;
+            this.$element.find('.tl-timeline').each(function () {
+                var layer = $(this).data('tl-layer');
+                if (layer > that._highestLayer)
+                    that._highestLayer = layer;
 
-            this.$element.css('height', timelineHeight + ((timelineCount + 1) * this.options.timelineSpacing));
+                if (timelineHeight === 0)
+                    that.timelineHeight = parseInt($(this).outerHeight());
+
+            });
+
+            // space for two layers
+            var totalHeight = timelineHeight + ((this._highestLayer + 2) * this.options.timelineSpacing);
+
+            this.$element
+                .css('height', totalHeight)
+                .find('.tl-time__unit span').css({'height': totalHeight, 'top': totalHeight * (-1)});
+
         },
 
         addEventHandlers: function () {
@@ -343,14 +360,12 @@
                 if ($(this).hasClass('is-draggable')) {
                     mode = 'move';
                 }
-                if (($(e.target).hasClass('tl-timeline__resizer-start') || $(this).hasClass('is-infinite-end'))
-                    && $(this).hasClass('is-resizeable')
-                ) {
-                    mode = 'w-resize';
-                } else if (($(e.target).hasClass('tl-timeline__resizer-end') || $(this).hasClass('is-infinite-start'))
-                    && $(this).hasClass('is-resizeable')
-                ) {
-                    mode = 'e-resize';
+                if ($(this).hasClass('is-resizeable')) {
+                    if ($(e.target).hasClass('tl-timeline__resizer-start') || $(this).hasClass('is-infinite-end')) {
+                        mode = 'w-resize';
+                    } else if ($(e.target).hasClass('tl-timeline__resizer-end') || $(this).hasClass('is-infinite-start')) {
+                        mode = 'e-resize';
+                    }
                 }
 
                 if (mode === false) {
@@ -362,19 +377,55 @@
 
                 var $drag = $(this);
 
+
                 $('body').css('cursor', mode);
+                that.$element.find('.tl-timeline').css('z-index', 1000);
+
                 $drag
-                    .css('cursor', mode)
+                    .css({'z-index': 1050, 'cursor': mode})
                     .addClass('is-hovered is-dragging');
+
+
+                var startDrag = {x: e.pageX, y: e.pageY};
+                var totalDeltaY;
 
                 drag.x = e.pageX;
                 drag.y = e.pageY;
 
                 var $mouseMoveTargets = $(this).parents();
+
                 $mouseMoveTargets.on("mousemove", function (e) {
 
                     delta.x = e.pageX - drag.x;
                     delta.y = e.pageY - drag.y;
+
+                    var currentLayer = parseInt($drag.data('tl-layer'));
+                    totalDeltaY = startDrag.y - e.pageY;
+
+                    if (totalDeltaY > that.options.timelineSpacing) {
+
+                        $drag.css('bottom', ((currentLayer + 1) * that.options.timelineSpacing) + 20 + 'px');
+                        $drag.data('tl-layer', currentLayer + 1);
+
+                        startDrag.y = e.pageY;
+                        that.setWrapperDimensions();
+
+                    } else if (totalDeltaY < that.options.timelineSpacing * (-1)) {
+
+                        var useForSpacing = currentLayer - 1;
+                        if (useForSpacing < 0) {
+                            useForSpacing = 0;
+                            currentLayer = 1;
+                        }
+
+                        $drag.css('bottom', (useForSpacing * that.options.timelineSpacing) + 20 + 'px');
+                        $drag.data('tl-layer', currentLayer - 1);
+
+                        startDrag.y = e.pageY;
+                        that.setWrapperDimensions();
+                    }
+
+                    that.options.data[$drag.data('tl-identifier')].layer = currentLayer;
 
                     var currentOffset = $drag.offset();
                     var newLeft = (currentOffset.left + delta.x)
@@ -410,17 +461,14 @@
                 $(document).on('mouseup', function () {
 
                     if (!drag.isDragging) return;
-
                     drag.isDragging = false;
-
-                    $('body').css('cursor', 'default');
-                    $drag.css('cursor', 'default');
 
                     var oldLeft = parseInt($drag.css('left'));
                     var percentLeft = 100 / parseInt(that.$element.innerWidth()) * oldLeft;
 
+                    $('body').css('cursor', 'default');
                     $drag
-                        .css({'left': percentLeft + '%'})
+                        .css({'left': percentLeft + '%', cursor: 'default'})
                         .removeClass('is-dragging is-hovered');
 
                     if (mode == 'move') {
