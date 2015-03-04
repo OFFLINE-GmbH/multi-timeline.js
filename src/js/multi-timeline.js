@@ -288,14 +288,14 @@
         },
 
         setWrapperDimensions: function () {
-            var timelineHeight = 0;
             var that = this;
+            var timelineHeight = 0;
             var outerWidth = this.$element.outerWidth();
 
             this.$element.find('.tl-timeline').each(function () {
                 var left = 100 / outerWidth * parseInt($(this).css('left'));
 
-                // only look for timlines that are currently on screen
+                // only look for timelines that are currently on screen
                 if (left > 0 && left < 100) {
                     var layer = $(this).data('tl-layer');
                     if (layer > that._highestLayer)
