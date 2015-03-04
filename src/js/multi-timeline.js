@@ -169,6 +169,7 @@
                 if (dataEntry.layer === undefined) {
                     useLayer = currentLayer;
                     currentLayer++;
+                    that.options.data[key].layer = useLayer;
                 } else {
                     useLayer = dataEntry.layer;
                 }
