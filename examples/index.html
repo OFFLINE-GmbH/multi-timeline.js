@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>multi-timeline.js: Visualisation and management of multiple timelines</title>
-    <script src="//code.jquery.com/jquery-1.11.2.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js"></script>
-    <script src="../dest/multi-timeline.min.js"></script>
+    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="../bower_components/moment/min/moment.min.js"></script>
+    <script src="../dist/multi-timeline.min.js"></script>
 
-    <link rel="stylesheet" href="../dest/multi-timeline.min.css"/>
+    <link rel="stylesheet" href="../dist/multi-timeline.min.css"/>
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -34,11 +34,21 @@
         $('.simple-timeline').multiTimeline({
             start: '2015-02-18',
             end: '2015-03-01',
+            onDragEnd: function(element, timeline) {
+                console.log('dragged', timeline.getData());
+            },
+            onResizeEnd: function(element, timeline) {
+                console.log('resized', timeline.getData());
+            },
+            onEdit: function(element, timeline) {
+                console.log('edited', timeline.getData());
+            },
             data: [
                 {
                     'title': 'Simple timeline',
-                    'start': '2015-02-20',
-                    'end': '2015-02-26'
+                    'start': '2015-02-20 12:15',
+                    'end': '2015-02-26',
+                    'resizeable': true
                 },
                 {
                     'title': 'Another timeline',
@@ -97,6 +107,8 @@
 <!-- ============================================== -->
 
 <h2>Timeline with controls</h2>
+
+<div class="controls-timeline"></div>
 
 <div class="controls">
     <button type="button" class="js-go-left">Go left</button>
