@@ -24,6 +24,11 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+    -webkit-transition: opacity ease .2s;
+    -moz-transition: opacity ease .2s;
+    -ms-transition: opacity ease .2s;
+    -o-transition: opacity ease .2s;
+    transition: opacity ease .2s;
     &__title {
         color: #fff;
         white-space: nowrap;
@@ -44,6 +49,7 @@
         color: #FFF;
         padding: 2px 5px;
         display: inline-block;
+        pointer-events: none;
         -webkit-transition: opacity ease .2s 0s, visibility ease .2s 0s;
         -moz-transition: opacity ease .2s 0s, visibility ease .2s 0s;
         -ms-transition: opacity ease .2s 0s, visibility ease .2s 0s;
@@ -99,6 +105,7 @@
 
     &.is-hovered {
         z-index: 10000 !important;
+        opacity: .8;
         .tl-timeline__date-marker {
             opacity: 1;
             visibility: visible;
@@ -109,6 +116,9 @@
             -o-transition-delay: .25s;
             transition-delay: .25s;
         }
+    }
+    &.is-dragging {
+        z-index: 10005 !important;
     }
     &.is-resizeable {
         .tl-timeline__resizer {
