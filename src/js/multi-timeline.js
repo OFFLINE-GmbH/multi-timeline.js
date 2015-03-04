@@ -17,12 +17,17 @@
             mousewheelPan: true,
             mousewheelZoom: true,
             allDraggable: true,
+            allResizeable: true,
             gridPrecision: 15,
             onTimelineClick: function (event, data) {
             },
             onZoomChange: function (newZoom) {
             },
             onDragEnd: function (element, timeline) {
+            },
+            onResizeEnd: function (element, timeline) {
+            },
+            onEdit: function (element, timeline) {
             },
             zoomInControl: null,
             zoomOutControl: null,
@@ -139,6 +144,8 @@
             var currentLayer = 0;
 
             $(this.options.data).each(function (key) {
+                var toMouseOut;
+
                 var dataEntry = this;
 
                 if (dataEntry.end == undefined) {
@@ -178,25 +185,12 @@
                     left = 100;
                 }
                 var visibility = (duration < 0) ? 'hidden' : 'visible';
-                var title = (dataEntry.title !== undefined) ? dataEntry.title : '&nbsp;';
 
-                var html = '';
-                if (dataEntry.start != that.options.dawn && that.options.markerDateFormat !== false) {
-                    html += '<div class="tl-timeline__date-marker tl-timeline__date-start">';
-                    html += moment(dataEntry.start).format(that.options.markerDateFormat)
-                    html += '</div>';
-                }
-                html += '<div class="tl-timeline__title">' + title + '</div>'
-
-                if (dataEntry.end != that.options.infinity && that.options.markerDateFormat !== false) {
-                    html += '<div class="tl-timeline__date-marker tl-timeline__date-end">';
-                    html += moment(dataEntry.end).format(that.options.markerDateFormat);
-                    html += '</div>'
-                }
+                dataEntry.title = (dataEntry.title !== undefined) ? dataEntry.title : '&nbsp;';
 
                 // Add Timeline
                 var $timeline = $('<div class="tl-timeline">')
-                    .html(html)
+                    .html(that.getTimelineHtml(dataEntry))
                     .css({
                         'width': width + '%',
                         'left': left + '%',
@@ -210,14 +204,28 @@
                         "data-tl-start-offset": startOffset,
                         "data-tl-duration": duration,
                         "data-tl-identifier": key,
-                        "title": title
+                        "title": dataEntry.title
                     })
                     .on('click', function (event) {
                         that.options.onTimelineClick(event, dataEntry);
+                    }).on('mouseenter', function () {
+                        clearTimeout(toMouseOut);
+                        $(this).addClass('is-hovered');
+                    }).on('mouseleave', function () {
+                        var $this = $(this);
+                        if ($this.hasClass('is-dragging')) {
+                            return;
+                        }
+                        toMouseOut = setTimeout(function () {
+                            $this.removeClass('is-hovered');
+                        }, 100);
                     });
 
                 if (that.options.allDraggable === true || dataEntry.draggable === true) {
                     $timeline.addClass('is-draggable');
+                }
+                if (that.options.allResizeable === true || dataEntry.resizeable === true) {
+                    $timeline.addClass('is-resizeable');
                 }
 
                 $timeline.prependTo(that.$element);
@@ -229,6 +237,34 @@
             });
             this._layerCount = currentLayer;
             return this;
+        },
+
+        getTimelineHtml: function (dataEntry) {
+
+            var html = '';
+
+            // Resize Hanlder
+            html += '<div class="tl-timeline__resizer tl-timeline__resizer-start"></div>';
+            html += '<div class="tl-timeline__resizer tl-timeline__resizer-end"></div>';
+
+            // Start Marker
+            if (dataEntry.start != this.options.dawn && this.options.markerDateFormat !== false) {
+                html += '<div class="tl-timeline__date-marker tl-timeline__date-start">';
+                html += moment(dataEntry.start).format(this.options.markerDateFormat)
+                html += '</div>';
+            }
+
+            // Title
+            html += '<div class="tl-timeline__title">' + dataEntry.title + '</div>'
+
+            // End Marker
+            if (dataEntry.end != this.options.infinity && this.options.markerDateFormat !== false) {
+                html += '<div class="tl-timeline__date-marker tl-timeline__date-end">';
+                html += moment(dataEntry.end).format(this.options.markerDateFormat);
+                html += '</div>'
+            }
+
+            return html;
         },
 
         setWrapperDimensions: function () {
@@ -270,7 +306,7 @@
                     var e = window.event || e;
                     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
 
-                    if (e.ctrlKey === true && this.options.mousewheelZoom === true) {
+                    if (e.ctrlKey === true && that.options.mousewheelZoom === true) {
                         if (delta > 0) {
                             that.zoomIn();
                         } else {
@@ -290,14 +326,31 @@
             var delta = {x: 0, y: 0},
                 drag = {x: 0, y: 0, isDragging: false};
 
-            that.$element.on('mousedown', '.tl-timeline.is-draggable', function (e) {
+            that.$element.on('mousedown', '.tl-timeline', function (e) {
+
+                var mode = false;
+                if ($(this).hasClass('is-draggable')) {
+                    mode = 'move';
+                }
+                if ($(e.target).hasClass('tl-timeline__resizer-start') && $(this).hasClass('is-resizeable')) {
+                    mode = 'w-resize';
+                } else if ($(e.target).hasClass('tl-timeline__resizer-end') && $(this).hasClass('is-resizeable')) {
+                    mode = 'e-resize';
+                }
+
+                if (mode === false) {
+                    return;
+                }
 
                 if (drag.isDragging) return;
                 drag.isDragging = true;
 
                 var $drag = $(this);
-                $('body').css('cursor', 'move');
-                $drag.css('cursor', 'move');
+
+                $('body').css('cursor', mode);
+                $drag
+                    .css('cursor', mode)
+                    .addClass('is-hovered is-dragging');
 
                 drag.x = e.pageX;
                 drag.y = e.pageY;
@@ -310,9 +363,25 @@
 
                     var currentOffset = $drag.offset();
                     var newLeft = (currentOffset.left + delta.x)
-                    $drag.offset({
-                        left: newLeft
-                    });
+                    var dragWidth = parseFloat($drag.css('width'));
+
+                    switch (mode) {
+                        case 'move':
+                            $drag.offset({
+                                left: newLeft
+                            });
+                            break;
+                        case 'w-resize':
+                            if (dragWidth - delta.x < 50) return;
+                            $drag
+                                .offset({left: newLeft})
+                                .css('width', dragWidth - delta.x);
+                            break;
+                        case 'e-resize':
+                            if (dragWidth + delta.x < 50) return;
+                            $drag.css('width', dragWidth + delta.x);
+                            break;
+                    }
 
                     var pxLeft = parseInt($drag.css('left'));
                     var percentLeft = 100 / parseInt(that.$element.innerWidth()) * pxLeft;
@@ -335,12 +404,20 @@
                     var oldLeft = parseInt($drag.css('left'));
                     var percentLeft = 100 / parseInt(that.$element.innerWidth()) * oldLeft;
 
-                    $drag.css({'left': percentLeft + '%'});
+                    $drag
+                        .css({'left': percentLeft + '%'})
+                        .removeClass('is-dragging is-hovered');
 
-                    that.options.onDragEnd($drag, that);
+                    if(mode == 'move') {
+                        that.options.onDragEnd($drag, that);
+                    } else {
+                        that.options.onResizeEnd($drag, that);
+                    }
+                    that.options.onEdit($drag, that);
 
                     $mouseMoveTargets.off('mousemove');
                     $(document).off('mouseup');
+
                 });
                 e.preventDefault(); // disable selection
             });
@@ -350,12 +427,16 @@
 
         updateDates: function ($element, startDate) {
 
-            var endDate = moment(startDate.format('YYYY-MM-DD HH:mm:ss'));
-            endDate = endDate.add($element.data('tl-duration'), 'seconds');
+            var pxLeft = parseInt($element.css('left'));
+            var percentLeft = 100 / parseInt(this.$element.innerWidth()) * (pxLeft + $element.outerWidth());
+
+            var endDate = this.percentToDate(percentLeft);
 
             // Update data objects
             this.options.data[$element.data('tl-identifier')].start = startDate.format('YYYY-MM-DD HH:mm:ss');
             this.options.data[$element.data('tl-identifier')].end = endDate.format('YYYY-MM-DD HH:mm:ss');
+
+            $element.data('tl-duration', this.getDuration(startDate, endDate));
 
             // Update markers
             if (this.options.markerDateFormat !== false) {
@@ -394,7 +475,7 @@
             if (this.options.mousewheelPan === true || this.options.mousewheelZoom === true) {
                 this.$element.off('mousewheel DOMMouseScroll onmousewheel');
             }
-            this.$element.off('mousedown', '.tl-timeline.is-draggable');
+            this.$element.off('mousedown', '.tl-timeline');
             return this;
         },
         setZoom: function (zoom) {

@@ -74,14 +74,21 @@ These are possible config values. Shown are defaults.
                                                     // to make only certain timelines draggable
                                                     // set to false and use the `draggable` key in 
                                                     // your timeline data object
+        allResizeable:     true,                    // Makes all timelines resizeable (editable)
+                                                    // to make only certain timelines resizeable
+                                                    // set to false and use the `resizeable` key in 
+                                                    // your timeline data object
                                                     
         onZoomChange:     function(newZoom) {       // Executed when zoom changes
-            
         },
         onTimelineClick:  function(event, data) {   // Executed when a timeline is clicked. Receives js event and
-                                                    // data specified in `data`
+        },                                          // data specified in `data`
+
+        onDragEnd:  function(element, timeline) {   // Executed when a timeline has been dragged
         },
-        onDragEnd:  function(element)           {   // Executed when a timeline has been dragged
+        onResizeEnd:  function(element, timeline) { // Executed when a timeline has been resized
+        },
+        onEdit:  function(element, timeline) {      // Executed when a timeline has been dragged or resized
         },
         data: []                                    // Timeline data (see below)
     });
@@ -104,7 +111,10 @@ Each timeline is specified as an object and can receive the following attributes
                                             
         draggable: true                     // Use when `allDraggable` is set to `false` 
                                             // makes this specific timeline draggable
-            
+                                            
+        resizeable: true                    // Use when `allResizeable` is set to `false` 
+                                            // makes this specific timeline resizeable
+                    
     }
     
 If the `start` or `end` attributes are not specified, the timeline becomes infinite in corresponding direction.
