@@ -145,17 +145,21 @@
 
             $(this.options.data).each(function (key) {
                 var toMouseOut;
-
+                var isInfinite = {past: false, future: false};
                 var dataEntry = this;
 
-                if (dataEntry.end == undefined) {
+
+                if (dataEntry.end == undefined || dataEntry.start == that.options.infinity) {
+                    isInfinite.end = true;
                     dataEntry.end = that.options.infinity;
                 }
-                if (dataEntry.start == undefined) {
+                if (dataEntry.start == undefined || dataEntry.start == that.options.dawn) {
+                    isInfinite.start = true;
                     dataEntry.start = that.options.dawn;
                 }
 
                 var duration = that.getDuration(moment(dataEntry.start), moment(dataEntry.end));
+
                 var durationInDays = duration / 60 / 60 / 24;
                 var startOffset = that.getDuration(moment(that.options.start), moment(dataEntry.start));
                 var startOffsetInDays = startOffset / 60 / 60 / 24;
@@ -172,7 +176,8 @@
                 var tlOverflowLeft = '', tlOverflowRight = '';
                 if (startOffset < 0) {
                     duration = duration + startOffset;
-                    startOffset = 0;
+                    durationInDays = duration / 60 / 60 / 24;
+                    startOffsetInDays = startOffset = 0;
                     tlOverflowLeft = 'tl-overflow-left';
                 }
                 var width = durationInDays * that._percentagePerDay;
@@ -226,6 +231,12 @@
                 }
                 if (that.options.allResizeable === true || dataEntry.resizeable === true) {
                     $timeline.addClass('is-resizeable');
+                }
+                if (isInfinite.start === true) {
+                    $timeline.addClass('is-infinite-start');
+                }
+                if (isInfinite.end === true) {
+                    $timeline.addClass('is-infinite-end');
                 }
 
                 $timeline.prependTo(that.$element);
@@ -332,9 +343,13 @@
                 if ($(this).hasClass('is-draggable')) {
                     mode = 'move';
                 }
-                if ($(e.target).hasClass('tl-timeline__resizer-start') && $(this).hasClass('is-resizeable')) {
+                if (($(e.target).hasClass('tl-timeline__resizer-start') || $(this).hasClass('is-infinite-end'))
+                    && $(this).hasClass('is-resizeable')
+                ) {
                     mode = 'w-resize';
-                } else if ($(e.target).hasClass('tl-timeline__resizer-end') && $(this).hasClass('is-resizeable')) {
+                } else if (($(e.target).hasClass('tl-timeline__resizer-end') || $(this).hasClass('is-infinite-start'))
+                    && $(this).hasClass('is-resizeable')
+                ) {
                     mode = 'e-resize';
                 }
 
@@ -408,7 +423,7 @@
                         .css({'left': percentLeft + '%'})
                         .removeClass('is-dragging is-hovered');
 
-                    if(mode == 'move') {
+                    if (mode == 'move') {
                         that.options.onDragEnd($drag, that);
                     } else {
                         that.options.onResizeEnd($drag, that);
@@ -427,14 +442,26 @@
 
         updateDates: function ($element, startDate) {
 
+            if ($element.hasClass('is-infinite-start')) {
+                startDate = moment(this.options.dawn);
+            }
+
             var pxLeft = parseInt($element.css('left'));
             var percentLeft = 100 / parseInt(this.$element.innerWidth()) * (pxLeft + $element.outerWidth());
 
-            var endDate = this.percentToDate(percentLeft);
+            var endDate = ($element.hasClass('is-infinite-end')) ? moment(this.options.infinity) : this.percentToDate(percentLeft);
+
 
             // Update data objects
             this.options.data[$element.data('tl-identifier')].start = startDate.format('YYYY-MM-DD HH:mm:ss');
             this.options.data[$element.data('tl-identifier')].end = endDate.format('YYYY-MM-DD HH:mm:ss');
+
+            if ($element.hasClass('is-infinite-start')) {
+                delete this.options.data[$element.data('tl-identifier')].start;
+            }
+            if ($element.hasClass('is-infinite-end')) {
+                delete this.options.data[$element.data('tl-identifier')].end;
+            }
 
             $element.data('tl-duration', this.getDuration(startDate, endDate));
 

@@ -98,9 +98,11 @@
     }
 
     &.is-hovered {
+        z-index: 10000 !important;
         .tl-timeline__date-marker {
             opacity: 1;
             visibility: visible;
+            z-index: 10000;
             -webkit-transition-delay: .25s;
             -moz-transition-delay: .25s;
             -ms-transition-delay: .25s;
