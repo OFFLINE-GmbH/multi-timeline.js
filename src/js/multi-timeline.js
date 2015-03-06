@@ -403,7 +403,7 @@
 
 
                 var startDrag = {x: e.pageX, y: e.pageY};
-                var totalDeltaY;
+                var totalDelta = {x: 0, y: 0};
 
                 drag.x = e.pageX;
                 drag.y = e.pageY;
@@ -416,9 +416,14 @@
                     delta.y = e.pageY - drag.y;
 
                     var currentLayer = parseInt($drag.data('tl-layer'));
-                    totalDeltaY = startDrag.y - e.pageY;
 
-                    if (totalDeltaY > that.options.timelineSpacing) {
+                    totalDelta.x = startDrag.x - e.pageX;
+                    totalDelta.y = startDrag.y - e.pageY;
+
+                    // Drag thresold
+                    if(Math.abs(totalDelta.x) < 5 && Math.abs(totalDelta.y) < 5) return;
+
+                    if (totalDelta.y > that.options.timelineSpacing) {
 
                         $drag.css('bottom', ((currentLayer + 1) * that.options.timelineSpacing) + 20 + 'px');
                         $drag.data('tl-layer', currentLayer + 1);
@@ -426,7 +431,7 @@
                         startDrag.y = e.pageY;
                         that.setWrapperDimensions();
 
-                    } else if (totalDeltaY < that.options.timelineSpacing * (-1)) {
+                    } else if (totalDelta.y < that.options.timelineSpacing * (-1)) {
 
                         var useForSpacing = currentLayer - 1;
                         if (useForSpacing < 0) {
