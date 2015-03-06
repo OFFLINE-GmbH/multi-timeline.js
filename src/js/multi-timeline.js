@@ -152,11 +152,10 @@
 
             $(this.options.data).each(function (key) {
                 var toMouseOut;
-                var isInfinite = {past: false, future: false};
+                var isInfinite = {start: false, end: false};
                 var dataEntry = this;
 
-
-                if (dataEntry.end == undefined || dataEntry.start == that.options.infinity) {
+                if (dataEntry.end == undefined || dataEntry.end == that.options.infinity) {
                     isInfinite.end = true;
                     dataEntry.end = that.options.infinity;
                 }
@@ -488,18 +487,18 @@
                         .css({'left': percentLeft + '%', cursor: 'default'})
                         .removeClass('is-dragging is-hovered');
 
+                    $mouseMoveTargets.off('mousemove');
+                    $(document).off('mouseup');
+
+                    that._highestLayer = 1;
+                    that.setWrapperDimensions();
+
                     if (mode == 'move') {
                         that.options.onDragEnd($drag, that);
                     } else {
                         that.options.onResizeEnd($drag, that);
                     }
                     that.options.onEdit($drag, that);
-
-                    $mouseMoveTargets.off('mousemove');
-                    $(document).off('mouseup');
-
-                    that._highestLayer = 1;
-                    that.setWrapperDimensions();
 
                 });
                 e.preventDefault(); // disable selection
