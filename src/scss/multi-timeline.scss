@@ -32,6 +32,7 @@
     box-sizing: border-box;
     cursor: pointer;
     z-index: 1000;
+    min-height: 20px;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
@@ -122,6 +123,7 @@
             opacity: 1;
             visibility: visible;
             z-index: 10000;
+            white-space: nowrap;
             -webkit-transition-delay: .25s;
             -moz-transition-delay: .25s;
             -ms-transition-delay: .25s;

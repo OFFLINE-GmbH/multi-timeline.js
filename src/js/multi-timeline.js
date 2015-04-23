@@ -198,7 +198,7 @@
                 }
                 var visibility = (duration < 0) ? 'hidden' : 'visible';
 
-                dataEntry.title = (dataEntry.title !== undefined) ? dataEntry.title : '&nbsp;';
+                dataEntry.title = (dataEntry.title !== undefined) ? dataEntry.title : '';
 
                 // Add Timeline
                 var $timeline = $('<div class="tl-timeline">')
