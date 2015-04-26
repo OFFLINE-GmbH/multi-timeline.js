@@ -225,7 +225,7 @@
                         "title": dataEntry.title
                     })
                     .on('click', function (event) {
-                        if(that._dragging === true) return;
+                        if (that._dragging === true) return;
                         that.options.onTimelineClick(event, dataEntry);
                     })
                     .on('mouseenter', function () {
@@ -421,7 +421,7 @@
                     totalDelta.y = startDrag.y - e.pageY;
 
                     // Drag thresold
-                    if(Math.abs(totalDelta.x) < 5 && Math.abs(totalDelta.y) < 5) return;
+                    if (Math.abs(totalDelta.x) < 5 && Math.abs(totalDelta.y) < 5) return;
 
                     that.$element.find('.tl-timeline').css('z-index', 1000);
                     $('body').css('cursor', mode);
@@ -513,10 +513,12 @@
                     } else {
                         that.options.onResizeEnd($drag, that);
                     }
-                    that.options.onEdit($drag, that);
+                    if (that._dragging) {
+                        that.options.onEdit($drag, that);
+                    }
 
                     // Wait for click event to be fired, then reset
-                    setTimeout(function() {
+                    setTimeout(function () {
                         that._dragging = false;
                     }, 40);
 
