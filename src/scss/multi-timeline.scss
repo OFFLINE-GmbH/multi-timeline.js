@@ -117,7 +117,7 @@
     }
 
     &.is-hovered {
-        z-index: 10000 !important;
+        z-index: 2000 !important;
         opacity: .85;
         .tl-timeline__date-marker {
             opacity: 1;
