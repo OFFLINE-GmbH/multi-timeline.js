@@ -44,6 +44,7 @@
         this._name = pluginName;
         this._zoom = 5;
         this._layerCount = 0;
+        this._dragging = false;
         this._highestLayer = 1;
 
         this.init();
@@ -146,6 +147,10 @@
             return duration.asSeconds();
         },
 
+        getDraggingStatus: function () {
+            return this._dragging;
+        },
+
         addTimelines: function () {
             var that = this;
             var currentLayer = 0;
@@ -220,11 +225,14 @@
                         "title": dataEntry.title
                     })
                     .on('click', function (event) {
+                        if(that._dragging === true) return;
                         that.options.onTimelineClick(event, dataEntry);
-                    }).on('mouseenter', function () {
+                    })
+                    .on('mouseenter', function () {
                         clearTimeout(toMouseOut);
                         $(this).addClass('is-hovered');
-                    }).on('mouseleave', function () {
+                    })
+                    .on('mouseleave', function () {
                         var $this = $(this);
                         if ($this.hasClass('is-dragging')) {
                             return;
@@ -394,14 +402,6 @@
                 var $drag = $(this);
 
 
-                $('body').css('cursor', mode);
-                that.$element.find('.tl-timeline').css('z-index', 1000);
-
-                $drag
-                    .css({'z-index': 1050, 'cursor': mode})
-                    .addClass('is-hovered is-dragging');
-
-
                 var startDrag = {x: e.pageX, y: e.pageY};
                 var totalDelta = {x: 0, y: 0};
 
@@ -422,6 +422,16 @@
 
                     // Drag thresold
                     if(Math.abs(totalDelta.x) < 5 && Math.abs(totalDelta.y) < 5) return;
+
+                    that.$element.find('.tl-timeline').css('z-index', 1000);
+                    $('body').css('cursor', mode);
+
+                    $drag
+                        .css({'z-index': 1050, 'cursor': mode})
+                        .addClass('is-hovered is-dragging');
+
+
+                    that._dragging = true;
 
                     if (totalDelta.y > that.options.timelineSpacing) {
 
@@ -504,6 +514,11 @@
                         that.options.onResizeEnd($drag, that);
                     }
                     that.options.onEdit($drag, that);
+
+                    // Wait for click event to be fired, then reset
+                    setTimeout(function() {
+                        that._dragging = false;
+                    }, 40);
 
                 });
                 e.preventDefault(); // disable selection
