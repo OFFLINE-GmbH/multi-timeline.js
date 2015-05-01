@@ -6,7 +6,7 @@
     "Tobias Kündig <tobias.kuendig@offlinegmbh.ch>"
   ],
   "description": "Visualisation and management of multiple timelines",
-  "main": "dest/multi-timeline.min.js",
+  "main": "dist/multi-timeline.min.js",
   "keywords": [
     "timeline",
     "visualisation"
