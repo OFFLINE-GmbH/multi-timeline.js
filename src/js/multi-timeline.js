@@ -59,6 +59,9 @@
 
     multiTimeline.prototype = {
 
+        SECONDS_PER_DAY : 60 * 60 * 24,
+        DAYS_PER_WEEK   : 7,
+
         init: function () {
 
             if (this.options.start === null || this.options.end === null) {
@@ -75,8 +78,8 @@
             }
 
             this._secondsCount      = this.getDuration(this._startMoment, this._endMoment);
-            this._daysCount         = this._secondsCount / 60 / 60 / 24;
-            this._weeksCount        = this._daysCount / 7;
+            this._daysCount         = this._secondsCount / this.SECONDS_PER_DAY;
+            this._weeksCount        = this._daysCount / this.DAYS_PER_WEEK;
             this._percentagePerDay  = 100 / (this._daysCount + 1);
             this._percentagePerWeek = 100 / (this._weeksCount + 1);
 
@@ -179,11 +182,11 @@
 
                 var duration = that.getDuration(moment(dataEntry.start), moment(dataEntry.end));
 
-                var durationInDays     = duration / 60 / 60 / 24;
-                var durationInWeeks    = durationInDays / 7;
+                var durationInDays     = duration / that.SECONDS_PER_DAY;
+                var durationInWeeks    = durationInDays / that.DAYS_PER_WEEK;
                 var startOffset        = that.getDuration(moment(that.options.start), moment(dataEntry.start));
-                var startOffsetInDays  = startOffset / 60 / 60 / 24;
-                var startOffsetInWeeks = startOffsetInDays / 7;
+                var startOffsetInDays  = startOffset / that.SECONDS_PER_DAY;
+                var startOffsetInWeeks = startOffsetInDays / that.DAYS_PER_WEEK;
 
                 var useLayer;
                 if (dataEntry.layer === undefined) {
@@ -198,8 +201,8 @@
                 var tlOverflowLeft = '', tlOverflowRight = '';
                 if (startOffset < 0) {
                     duration = duration + startOffset;
-                    durationInDays = duration / 60 / 60 / 24;
-                    durationInWeeks = durationInDays / 7;
+                    durationInDays = duration / that.SECONDS_PER_DAY;
+                    durationInWeeks = durationInDays / that.DAYS_PER_WEEK;
                     startOffsetInDays = startOffset = 0;
                     tlOverflowLeft = 'tl-overflow-left';
                 }
@@ -577,12 +580,12 @@
         },
 
         percentToDate: function (percent) {
-            var factors = {
-                days:  24 * 60 * 60,
-                weeks: 24 * 60 * 60 * 7
+            var secondsPer = {
+                days:  this.SECONDS_PER_DAY,
+                weeks: this.SECONDS_PER_DAY * this.DAYS_PER_WEEK
             };
             var unitPercent = (this._unitCount + 1) / 100;
-            var add = parseInt((percent * unitPercent) * factors[this.options.xAxisUnit]);
+            var add = parseInt((percent * unitPercent) * secondsPer[this.options.xAxisUnit]);
             var date = moment(this.options.start).add(add, 'seconds');
             var minutes = date.get('minute');
 
