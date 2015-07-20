@@ -2,6 +2,15 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
+        autoprefixer: {
+            options: {
+                browsers: ['last 4 versions', 'ie 8', 'ie 9']
+            },
+            main: {
+                src: 'src/scss/multi-timeline.unprefixed.css',
+                dest: 'dist/multi-timeline.min.css'
+            }
+        },
         uglify: {
             js: {
                 options: {
@@ -38,9 +47,12 @@ module.exports = function (grunt) {
                     style: 'compressed'
                 },
                 files: {
-                    'dist/multi-timeline.min.css': 'src/scss/multi-timeline.scss'
+                    'src/scss/multi-timeline.unprefixed.css': 'src/scss/multi-timeline.scss'
                 }
             }
+        },
+        clean: {
+            css: ['src/scss/multi-timeline.unprefixed.css']
         }
     });
 
@@ -48,7 +60,7 @@ module.exports = function (grunt) {
     require('load-grunt-tasks')(grunt);
 
     // 4. Where we tell Grunt what to do when we type "grunt" into the terminal.
-    grunt.registerTask('default', ['uglify', 'sass']);
+    grunt.registerTask('default', ['uglify', 'sass', 'autoprefixer', 'clean']);
     grunt.registerTask('dev', ['watch']);
 
 };
