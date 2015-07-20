@@ -4,8 +4,12 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         uglify: {
             js: {
-                src: 'src/js/multi-timeline.js',
-                dest: 'dist/multi-timeline.min.js'
+                options: {
+                    sourceMap: true
+                },
+                files: {
+                    'dist/multi-timeline.min.js': 'src/js/multi-timeline.js',
+                }
             }
         },
         watch: {
