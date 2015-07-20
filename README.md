@@ -101,7 +101,7 @@ Each timeline is specified as an object and can receive the following attributes
         title:  'Title of your timeline',   
         start:  '2015-02-22 18:00:00',      // ISO_8601 date (with or without time)     
         end:    '2015-02-24',               // ISO_8601 date (with or without time)
-        color:  '#f00',                     // background-color, is set via inline style-attribute
+        color:  '#f00',                     // background-color, is set via inline style attribute
         class:  'important',                // Additional class for .tl-timeline elements
         zIndex: 10,                         // z-index for this timeline (to manage overlaps)
         
