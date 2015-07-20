@@ -114,7 +114,9 @@ Each timeline is specified as an object and can receive the following attributes
     title:  'Title of your timeline',
     start:  '2015-02-22 18:00:00',      // ISO_8601 date (with or without time)
     end:    '2015-02-24',               // ISO_8601 date (with or without time)
-    color:  '#f00',                     // background-color, is set via inline style attribute
+    color:  '#f00',                     // background-color, is set via inline style attribute if string
+                                        // If you provide an array of colors, all specified values
+                                        // are applied using embedded colored flexbox containers.
     class:  'important',                // Additional class for .tl-timeline elements
     zIndex: 10,                         // z-index for this timeline (to manage overlaps)
 
@@ -128,6 +130,10 @@ Each timeline is specified as an object and can receive the following attributes
     resizeable: true                    // Use when `allResizeable` is set to `false`
                                         // makes this specific timeline resizeable
 
+    phases: []                          // (experimental) Provide multiple start/end dates for a
+                                        // timeline. The timeline becomes read only since edit support
+                                        // for phases is not yet supported. For a working example see
+                                        // exampes/index.html or the demo website.
 }
 ```
 

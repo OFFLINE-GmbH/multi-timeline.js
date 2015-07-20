@@ -167,132 +167,186 @@
             var currentLayer = 0;
 
             $(this.options.data).each(function (key) {
-                var toMouseOut;
-                var isInfinite = {start: false, end: false};
-                var dataEntry = this;
-
-                if (dataEntry.end === undefined || dataEntry.end == that.options.infinity) {
-                    isInfinite.end = true;
-                    dataEntry.end = that.options.infinity;
-                }
-                if (dataEntry.start === undefined || dataEntry.start == that.options.dawn) {
-                    isInfinite.start = true;
-                    dataEntry.start = that.options.dawn;
-                }
-
-                var durationIn        = {};
-
-                durationIn.seconds    = that.getDuration(moment(dataEntry.start), moment(dataEntry.end));
-                durationIn.days       = durationIn.seconds / that.SECONDS_PER_DAY;
-                durationIn.weeks      = durationIn.days / that.DAYS_PER_WEEK;
-
-                var startOffsetIn     = {};
-
-                startOffsetIn.seconds = that.getDuration(moment(that.options.start), moment(dataEntry.start));
-                startOffsetIn.days    = startOffsetIn.seconds / that.SECONDS_PER_DAY;
-                startOffsetIn.weeks   = startOffsetIn.days / that.DAYS_PER_WEEK;
-
-                var useLayer;
-                if (dataEntry.layer === undefined) {
-                    useLayer = currentLayer;
-                    currentLayer++;
-                    that.options.data[key].layer = useLayer;
-                } else {
-                    useLayer = dataEntry.layer;
-                }
-
-                // Check if timeline overflows wrapper
-                var tlOverflowLeft = '', tlOverflowRight = '';
-                if (startOffsetIn.seconds < 0) {
-                    durationIn.seconds  = durationIn.seconds + startOffsetIn.seconds;
-                    durationIn.days     = durationIn.seconds / that.SECONDS_PER_DAY;
-                    durationIn.weeks    = durationIn.days / that.DAYS_PER_WEEK;
-                    startOffsetIn.days  = startOffsetIn.seconds = 0;
-                    tlOverflowLeft      = 'tl-overflow-left';
-                }
-
-                var width = durationIn[that.options.xAxisUnit] * that._unitPercentage;
-                if ((startOffsetIn.days + durationIn.days) > that._daysCount + 1) {
-                    tlOverflowRight = 'tl-overflow-right';
-                    width = 100;
-                }
-
-                var left = startOffsetIn[that.options.xAxisUnit] * that._unitPercentage;
-                if ((startOffsetIn.days) > (that._daysCount + 1)) {
-                    left = 100;
-                }
-                var visibility = (durationIn.seconds < 0) ? 'hidden' : 'visible';
-
-                dataEntry.title = (dataEntry.title !== undefined) ? dataEntry.title : '';
-
-                // Add Timeline
-                var $timeline = $('<div class="tl-timeline">')
-                    .html(that.getTimelineHtml(dataEntry))
-                    .css({
-                        'width': width + '%',
-                        'left': left + '%',
-                        'visibility': visibility,
-                        'bottom': (useLayer * that.options.timelineSpacing) + 20 + 'px',
-                        'background-color': (dataEntry.color !== undefined) ? dataEntry.color : null,
-                        'z-index': (dataEntry.zIndex !== undefined) ? dataEntry.zIndex : 10
-                    })
-                    .addClass(tlOverflowLeft + ' ' + tlOverflowRight + ' ' + ((dataEntry.class !== undefined) ? dataEntry.class : '' ))
-                    .attr({
-                        "data-tl-start-offset": startOffsetIn.seconds,
-                        "data-tl-duration": durationIn.seconds,
-                        "data-tl-identifier": key,
-                        "data-tl-layer": useLayer,
-                        "title": dataEntry.title
-                    })
-                    .on('click', function (event) {
-                        if (that._dragging === true) return;
-                        that.options.onTimelineClick(event, dataEntry);
-                    })
-                    .on('mouseenter', function () {
-                        clearTimeout(toMouseOut);
-                        $(this).addClass('is-hovered');
-                    })
-                    .on('mouseleave', function () {
-                        var $this = $(this);
-                        if ($this.hasClass('is-dragging')) {
-                            return;
-                        }
-                        toMouseOut = setTimeout(function () {
-                            $this.removeClass('is-hovered');
-                        }, 100);
-                    });
-
-                if (that.options.allDraggable === true || dataEntry.draggable === true) {
-                    $timeline.addClass('is-draggable');
-                }
-                if (that.options.allResizeable === true || dataEntry.resizeable === true) {
-                    $timeline.addClass('is-resizeable');
-                }
-                if (isInfinite.start === true) {
-                    $timeline.addClass('is-infinite-start');
-                }
-                if (isInfinite.end === true) {
-                    $timeline.addClass('is-infinite-end');
-                }
-
-                $timeline.prependTo(that.$element);
-
-                if (parseInt($timeline.outerWidth()) < 140) {
-                    $timeline.find('.tl-timeline__date-end').remove();
-                }
-
+                this.key = key;
+                that.addTimeline(this, currentLayer);
             });
-            this._layerCount = currentLayer;
+
             return this;
+        },
+
+        addTimeline: function(dataEntry) {
+
+            var that = this;
+
+            var toMouseOut;
+            var isInfinite = {start: false, end: false};
+            var classes = [];
+            var useLayer;
+
+            if (dataEntry.layer === undefined) {
+                useLayer = this._layerCount;
+                this._layerCount++;
+                this.options.data[dataEntry.key].layer = useLayer;
+            } else {
+                useLayer = dataEntry.layer;
+            }
+
+            dataEntry.hasPhases = false;
+
+            if(dataEntry.hasOwnProperty('phases') && dataEntry.phases.length > 0) {
+
+                classes.push('tl-has-phases');
+                this.options.allDraggable = false;
+                this.options.allResizeable = false;
+
+                dataEntry.start = dataEntry.phases[0].start;
+                dataEntry.end = dataEntry.phases[dataEntry.phases.length - 1].end;
+
+                dataEntry.hasPhases = true;
+
+                dataEntry.phases.forEach(function(phase) {
+                    phase.key = dataEntry.key;
+                    phase.layer = useLayer;
+                    that.addTimeline(phase);
+                });
+
+            }
+
+            if (dataEntry.end === undefined || dataEntry.end == this.options.infinity) {
+                isInfinite.end = true;
+                dataEntry.end = this.options.infinity;
+            }
+            if (dataEntry.start === undefined || dataEntry.start == this.options.dawn) {
+                isInfinite.start = true;
+                dataEntry.start = this.options.dawn;
+            }
+
+            var durationIn        = {};
+
+            durationIn.seconds    = this.getDuration(moment(dataEntry.start), moment(dataEntry.end));
+            durationIn.days       = durationIn.seconds / this.SECONDS_PER_DAY;
+            durationIn.weeks      = durationIn.days / this.DAYS_PER_WEEK;
+
+            if(durationIn.seconds === 0) {
+                classes.push('tl-point');
+            }
+
+            var startOffsetIn     = {};
+
+            startOffsetIn.seconds = this.getDuration(moment(this.options.start), moment(dataEntry.start));
+            startOffsetIn.days    = startOffsetIn.seconds / this.SECONDS_PER_DAY;
+            startOffsetIn.weeks   = startOffsetIn.days / this.DAYS_PER_WEEK;
+
+            // Check if timeline overflows wrapper
+            var tlOverflowLeft = '', tlOverflowRight = '';
+            if (startOffsetIn.seconds < 0) {
+                durationIn.seconds  = durationIn.seconds + startOffsetIn.seconds;
+                durationIn.days     = durationIn.seconds / this.SECONDS_PER_DAY;
+                durationIn.weeks    = durationIn.days / this.DAYS_PER_WEEK;
+                startOffsetIn.days  = startOffsetIn.seconds = 0;
+                classes.push('tl-overflow-left');
+            }
+
+            var width = durationIn[this.options.xAxisUnit] * this._unitPercentage;
+
+            if ((startOffsetIn.days + durationIn.days) > this._daysCount + 1) {
+                classes.push('tl-overflow-right');
+                width = 100;
+            }
+
+            var left = startOffsetIn[this.options.xAxisUnit] * this._unitPercentage;
+            if ((startOffsetIn.days) > (this._daysCount + 1)) {
+                left = 100;
+            }
+            var visibility = (durationIn.seconds < 0) ? 'hidden' : 'visible';
+
+            dataEntry.title = (dataEntry.title !== undefined) ? dataEntry.title : '';
+
+            if(dataEntry.class !== undefined) {
+                classes.push(dataEntry.class);
+            }
+
+            if($.isArray(dataEntry.color)) {
+                classes.push('has-color-bars');
+            }
+
+            var styles = {
+                'width'      : width + '%',
+                'left'       : left + '%',
+                'visibility' : visibility,
+                'bottom'     : (useLayer * this.options.timelineSpacing) + 20 + 'px',
+                'z-index'    : (dataEntry.zIndex !== undefined) ? dataEntry.zIndex : 10,
+                'background-color': dataEntry.color !== undefined && ! $.isArray(dataEntry.color) ? dataEntry.color : null
+            };
+
+            // Add Timeline
+            var $timeline = $('<div class="tl-timeline">')
+                .html(this.getTimelineHtml(dataEntry))
+                .css(styles)
+                .addClass(classes.join(' '))
+                .attr({
+                    "data-tl-start-offset": startOffsetIn.seconds,
+                    "data-tl-duration": durationIn.seconds,
+                    "data-tl-identifier": dataEntry.key,
+                    "data-tl-layer": useLayer,
+                    "title": dataEntry.title
+                })
+                .on('click', function (event) {
+                    if (that._dragging === true) return;
+                    that.options.onTimelineClick(event, dataEntry);
+                })
+                .on('mouseenter', function () {
+                    clearTimeout(toMouseOut);
+                    $(this).addClass('is-hovered');
+                })
+                .on('mouseleave', function () {
+                    var $this = $(this);
+                    if ($this.hasClass('is-dragging')) {
+                        return;
+                    }
+                    toMouseOut = setTimeout(function () {
+                        $this.removeClass('is-hovered');
+                    }, 100);
+                });
+
+            if (this.options.allDraggable === true || dataEntry.draggable === true) {
+                $timeline.addClass('is-draggable');
+            }
+            if (this.options.allResizeable === true || dataEntry.resizeable === true) {
+                $timeline.addClass('is-resizeable');
+            }
+            if (isInfinite.start === true) {
+                $timeline.addClass('is-infinite-start');
+            }
+            if (isInfinite.end === true) {
+                $timeline.addClass('is-infinite-end');
+            }
+
+            $timeline.prependTo(this.$element);
+
+            if (parseInt($timeline.outerWidth()) < 140) {
+                $timeline.find('.tl-timeline__date-end').remove();
+            }
         },
 
         getTimelineHtml: function (dataEntry) {
 
             var html = '';
 
-            // Resize Hanlder
+            if(dataEntry.hasPhases) {
+                return '<div class="tl-timeline__phase-line"></div>';
+            }
+
+            // Resize Handler
             html += '<div class="tl-timeline__resizer tl-timeline__resizer-start"></div>';
             html += '<div class="tl-timeline__resizer tl-timeline__resizer-end"></div>';
+
+            // Color Bars
+            if($.isArray(dataEntry.color)) {
+                dataEntry.color.forEach(function(color) {
+                    html += '<div class="tl-timeline__color-bar" style="background-color: ' + color + '"></div>';
+                });
+            }
 
             // Start Marker
             if (dataEntry.start != this.options.dawn && this.options.markerDateFormat !== false) {
@@ -476,7 +530,7 @@
                         that.setWrapperDimensions();
                     }
 
-                    that.options.data[$drag.data('tl-identifier')].layer = currentLayer;
+                    that.options.data[$drag.data('tl-identifier')].layer = this._layerCount;
 
                     var currentOffset = $drag.offset();
                     var newLeft = (currentOffset.left + delta.x);
