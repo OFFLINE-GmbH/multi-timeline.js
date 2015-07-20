@@ -130,6 +130,10 @@ Each timeline is specified as an object and can receive the following attributes
     resizeable: true                    // Use when `allResizeable` is set to `false`
                                         // makes this specific timeline resizeable
 
+    phases: []                          // (experimental) Provide multiple start/end dates for a
+                                        // timeline. The timeline becomes read only since edit support
+                                        // for phases is not yet supported. For a working example see
+                                        // exampes/index.html or the demo website.
 }
 ```
 
