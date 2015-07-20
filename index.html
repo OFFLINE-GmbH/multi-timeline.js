@@ -46,7 +46,7 @@
         <pre>
 $(function () {
     $('.static-timeline').multiTimeline({
-        
+
         allDraggable: false,
         allResizeable: false,
         mousewheelPan: false,
@@ -56,7 +56,7 @@ $(function () {
 
         start: '2015-02-18',
         end: '2015-03-01',
-        
+
         data: [
             {
                 'title': 'Simple timeline',
@@ -102,7 +102,7 @@ $(function () {
     <div class="row">
         <hr/>
 
-        <h2>Editable timeline <small>Use mousewheel to pan (Press Ctrl to zoom)</small></h2>
+        <h2>Editable timeline <small>Use mousewheel to pan (press Ctrl to zoom), drag or resize timelines</small></h2>
         <div class="editable-timeline"></div>
 <pre>
 $(function () {
@@ -180,6 +180,55 @@ $(function () {
         </script>
     </div>
     <hr>
+
+    <div class="row">
+
+        <h2>Timeline with week numbers</h2>
+
+        <div class="weeknumbers-timeline"></div>
+
+<pre>
+$(function () {
+    $('.weeknumbers-timeline').multiTimeline({
+        // display weeknumbers
+        xAxisUnit: 'weeks',
+        xAxisDateFormat: 'ww',
+
+        start: '2015-07-01',
+        end:   '2015-07-31',
+        
+        data:  weeknumbersTimlineData
+    });
+})
+</pre>
+        <script>
+            $(function () {
+                $('.weeknumbers-timeline').multiTimeline({
+
+                    xAxisUnit: 'weeks',
+                    xAxisDateFormat: 'ww',
+
+                    start: moment().subtract(40, 'days').format('YYYY-MM-DD'),
+                    end:   moment().add(40, 'days').format('YYYY-MM-DD'),
+                    data: [
+                        {
+                            'title': 'A Timeline',
+                            'end'  : moment().add(5, 'days').format('YYYY-MM-DD'),
+                            'start': moment().subtract(10, 'days').format('YYYY-MM-DD'),
+                        },
+                        {
+                            'title': 'Another Timeline',
+                            'start': moment().subtract(10, 'days').format('YYYY-MM-DD'),
+                            'end': moment().add(20, 'days').format('YYYY-MM-DD'),
+                        }
+                    ]
+                });
+            })
+        </script>
+    </div>
+
+    <hr>
+
     <div class="row">
         <h2>Timeline with controls (no mousewheel)</h2>
 
