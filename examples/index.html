@@ -115,6 +115,37 @@
 
 <!-- ============================================== -->
 
+<h2>Timeline with week numbers</h2>
+
+<div class="weeknumbers-timeline"></div>
+
+<script>
+    $(function () {
+        $('.weeknumbers-timeline').multiTimeline({
+            // display weeknumbers
+            xAxisUnit: 'weeks',
+            xAxisDateFormat: 'ww',
+
+            start: '2015-07-01',
+            end:   '2015-07-31',
+            data: [
+                {
+                    'title': 'A Timeline',
+                    'start': '2015-07-08',
+                    'end'  : '2015-07-15',
+                },
+                {
+                    'title': 'Another Timeline',
+                    'start': '2015-07-08',
+                    'end': '2015-07-22',
+                }
+            ]
+        });
+    })
+</script>
+
+<!-- ============================================== -->
+
 <h2>Timeline with controls</h2>
 
 <div class="controls-timeline"></div>
