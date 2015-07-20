@@ -5,6 +5,7 @@
             start: moment().subtract(7, 'days').format('YYYY-MM-DD'),
             end: moment().add(7, 'days').format('YYYY-MM-DD'),
             xAxisDateFormat: 'DD/MM',
+            xAxisUnit: 'days',
             markerDateFormat: 'YYYY-MM-DD HH:mm',
             timelineSpacing: 30,
             zoomStep: 1,
@@ -68,14 +69,19 @@
             this._startMoment = moment(this.options.start);
             this._endMoment = moment(this.options.end);
 
-            if (!this._endMoment.isAfter(this._startMoment)) {
+            if ( ! this._endMoment.isAfter(this._startMoment)) {
                 console.error('multi-timline.js: end date has to be a date after start date!');
                 return false;
             }
 
-            this._secondsCount = this.getDuration(this._startMoment, this._endMoment);
-            this._daysCount = this._secondsCount / 60 / 60 / 24;
-            this._percentagePerDay = 100 / (this._daysCount + 1);
+            this._secondsCount      = this.getDuration(this._startMoment, this._endMoment);
+            this._daysCount         = this._secondsCount / 60 / 60 / 24;
+            this._weeksCount        = this._daysCount / 7;
+            this._percentagePerDay  = 100 / (this._daysCount + 1);
+            this._percentagePerWeek = 100 / (this._weeksCount + 1);
+
+            this._unitCount      = this.options.xAxisUnit === 'days' ? this._daysCount : this._weeksCount;
+            this._unitPercentage = this.options.xAxisUnit === 'days' ? this._percentagePerDay : this._percentagePerWeek;
 
             this._timelineCount = this.options.data.length;
 
@@ -102,6 +108,8 @@
 
         addMarks: function () {
 
+            var unit = this.options.xAxisUnit === 'days' ? 'day' : 'week';
+
             var current = this._startMoment;
             var end = this._endMoment.add(1, 'day');
 
@@ -109,17 +117,17 @@
             var timeUnitCount = -1;
             var label = '';
 
-            while (!current.isSame(end)) {
+            while ( ! current.isAfter(end, unit)) {
                 timeUnitCount++;
-                current = current.add(1, 'day');
+                current = current.add(1, unit);
                 label = current;
 
                 // If there are more than 10 days
                 // write only every nth date to prevent overlap
-                if (this._daysCount > 10 && timeUnitCount % Math.round(this._daysCount / this.options.maxLabelCount) !== 0) {
+                if (this._unitCount > 10 && timeUnitCount % Math.round(this._unitCount / this.options.maxLabelCount) !== 0) {
                     label = '';
                 }
-                var isToday = current.isSame(new Date(), "day");
+                var isToday = current.isSame(new Date(), unit);
                 this.addTimeUnit($time, label, (timeUnitCount + 1), isToday);
 
             }
@@ -130,9 +138,10 @@
             if (moment.isMoment(label)) {
                 label = label.format(this.options.xAxisDateFormat);
             }
+
             var $unit = $('<li class="tl-time__unit">')
                 .html(label)
-                .css({left: (position * this._percentagePerDay) + '%'})
+                .css({left: (position * this._unitPercentage) + '%'})
                 .append('<span>');
 
             if (isToday) {
@@ -170,9 +179,11 @@
 
                 var duration = that.getDuration(moment(dataEntry.start), moment(dataEntry.end));
 
-                var durationInDays = duration / 60 / 60 / 24;
-                var startOffset = that.getDuration(moment(that.options.start), moment(dataEntry.start));
-                var startOffsetInDays = startOffset / 60 / 60 / 24;
+                var durationInDays     = duration / 60 / 60 / 24;
+                var durationInWeeks    = durationInDays / 7;
+                var startOffset        = that.getDuration(moment(that.options.start), moment(dataEntry.start));
+                var startOffsetInDays  = startOffset / 60 / 60 / 24;
+                var startOffsetInWeeks = startOffsetInDays / 7;
 
                 var useLayer;
                 if (dataEntry.layer === undefined) {
@@ -188,15 +199,17 @@
                 if (startOffset < 0) {
                     duration = duration + startOffset;
                     durationInDays = duration / 60 / 60 / 24;
+                    durationInWeeks = durationInDays / 7;
                     startOffsetInDays = startOffset = 0;
                     tlOverflowLeft = 'tl-overflow-left';
                 }
-                var width = durationInDays * that._percentagePerDay;
+                var width = durationInWeeks * that._percentagePerWeek;
                 if ((startOffsetInDays + durationInDays) > that._daysCount + 1) {
                     tlOverflowRight = 'tl-overflow-right';
                     width = 100;
                 }
-                var left = startOffsetInDays * that._percentagePerDay;
+                var unitOffset = that.options.xAxisUnit === 'days' ? startOffsetInDays : startOffsetInWeeks;
+                var left = unitOffset * that._unitPercentage;
                 if ((startOffsetInDays) > (that._daysCount + 1)) {
                     left = 100;
                 }
@@ -564,13 +577,18 @@
         },
 
         percentToDate: function (percent) {
-            var daysPercent = (this._daysCount + 1) / 100;
-            var add = parseInt((percent * daysPercent) * 24 * 60 * 60);
-
+            var factors = {
+                days:  24 * 60 * 60,
+                weeks: 24 * 60 * 60 * 7
+            };
+            var unitPercent = (this._unitCount + 1) / 100;
+            var add = parseInt((percent * unitPercent) * factors[this.options.xAxisUnit]);
             var date = moment(this.options.start).add(add, 'seconds');
             var minutes = date.get('minute');
+
             date.set('minute', Math.round(minutes / this.options.gridPrecision) * this.options.gridPrecision);
             date.set('second', 0);
+
             return date;
         },
 
