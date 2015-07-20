@@ -150,11 +150,16 @@
         border: 3px solid #fff;
         border-radius: 50%;
         transform: translate(-50%, 2px);
+        z-index: 2002 !important;
 
         .tl-timeline__title {
             display: none;
         }
-        
+
+        .tl-timeline__date-marker {
+            display: none !important;
+        }
+
         &.tl-overflow-right {
             transform: none;
         }
