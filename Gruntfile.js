@@ -2,16 +2,6 @@ module.exports = function (grunt) {
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        concat: {
-            //js: {
-            //    src: [
-            //        'src/js/html5shiv.min.js'
-            //        , 'src/js/pushy.js'
-            //        , 'src/js/app.js'
-            //    ],
-            //    dist: 'src/js/concatinated.js'
-            //},
-        },
         uglify: {
             js: {
                 src: 'src/js/multi-timeline.js',

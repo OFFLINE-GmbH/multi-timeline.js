@@ -1,4 +1,3 @@
-;
 (function ($, window, document, undefined) {
 
     var pluginName = "multiTimeline",
@@ -85,7 +84,7 @@
                 .addTimelines()
                 .addEventHandlers()
                 .setWrapperDimensions()
-                .setReady()
+                .setReady();
         },
 
         setReady: function () {
@@ -115,9 +114,9 @@
                 current = current.add(1, 'day');
                 label = current;
 
-                if (this._daysCount > 10 // If there are more than 10 days
-                    && timeUnitCount % Math.round(this._daysCount / this.options.maxLabelCount) !== 0 // write only every nth date to prevent overlap
-                ) {
+                // If there are more than 10 days
+                // write only every nth date to prevent overlap
+                if (this._daysCount > 10 && timeUnitCount % Math.round(this._daysCount / this.options.maxLabelCount) !== 0) {
                     label = '';
                 }
                 var isToday = current.isSame(new Date(), "day");
@@ -160,11 +159,11 @@
                 var isInfinite = {start: false, end: false};
                 var dataEntry = this;
 
-                if (dataEntry.end == undefined || dataEntry.end == that.options.infinity) {
+                if (dataEntry.end === undefined || dataEntry.end == that.options.infinity) {
                     isInfinite.end = true;
                     dataEntry.end = that.options.infinity;
                 }
-                if (dataEntry.start == undefined || dataEntry.start == that.options.dawn) {
+                if (dataEntry.start === undefined || dataEntry.start == that.options.dawn) {
                     isInfinite.start = true;
                     dataEntry.start = that.options.dawn;
                 }
@@ -277,18 +276,18 @@
             // Start Marker
             if (dataEntry.start != this.options.dawn && this.options.markerDateFormat !== false) {
                 html += '<div class="tl-timeline__date-marker tl-timeline__date-start">';
-                html += moment(dataEntry.start).format(this.options.markerDateFormat)
+                html += moment(dataEntry.start).format(this.options.markerDateFormat);
                 html += '</div>';
             }
 
             // Title
-            html += '<div class="tl-timeline__title">' + dataEntry.title + '</div>'
+            html += '<div class="tl-timeline__title">' + dataEntry.title + '</div>';
 
             // End Marker
             if (dataEntry.end != this.options.infinity && this.options.markerDateFormat !== false) {
                 html += '<div class="tl-timeline__date-marker tl-timeline__date-end">';
                 html += moment(dataEntry.end).format(this.options.markerDateFormat);
-                html += '</div>'
+                html += '</div>';
             }
 
             return html;
@@ -330,32 +329,32 @@
             var that = this;
             if (this.options.zoomInControl !== null) {
                 this.options.zoomInControl.on('click', function (e) {
+                    e.preventDefault();
                     that.zoomIn();
-                    e.preventDefault()
-                })
+                });
             }
             if (this.options.zoomOutControl !== null) {
                 this.options.zoomOutControl.on('click', function (e) {
+                    e.preventDefault();
                     that.zoomOut();
-                    e.preventDefault()
-                })
+                });
             }
             if (this.options.goRightControl !== null) {
                 this.options.goRightControl.on('click', function (e) {
+                    e.preventDefault();
                     that.goRight();
-                    e.preventDefault()
-                })
+                });
             }
             if (this.options.goLeftControl !== null) {
                 this.options.goLeftControl.on('click', function (e) {
+                    e.preventDefault();
                     that.goLeft();
-                    e.preventDefault()
-                })
+                });
             }
 
             if (this.options.mousewheelPan === true || this.options.mousewheelZoom === true) {
                 this.$element.on('mousewheel DOMMouseScroll onmousewheel', function (e) {
-                    var e = window.event || e;
+                    e = window.event || e;
                     var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
 
                     if (e.ctrlKey === true && that.options.mousewheelZoom === true) {
@@ -459,7 +458,7 @@
                     that.options.data[$drag.data('tl-identifier')].layer = currentLayer;
 
                     var currentOffset = $drag.offset();
-                    var newLeft = (currentOffset.left + delta.x)
+                    var newLeft = (currentOffset.left + delta.x);
                     var dragWidth = parseFloat($drag.css('width'));
 
                     switch (mode) {
@@ -594,6 +593,7 @@
             this.$element.off('mousedown', '.tl-timeline');
             return this;
         },
+
         setZoom: function (zoom) {
             if (zoom < 0) return;
             var diff = this._zoom - zoom;
@@ -604,6 +604,7 @@
                 this.zoomOut(Math.abs(diff));
             }
         },
+
         zoomOut: function (levels) {
             if (levels === undefined) {
                 levels = 1;
@@ -616,6 +617,7 @@
 
             this.redraw();
         },
+
         zoomIn: function (levels) {
             if (levels === undefined) {
                 levels = 1;
@@ -631,6 +633,7 @@
                 this.redraw();
             }
         },
+
         goRight: function () {
 
             var jump = Math.ceil(this._daysCount / 12);
@@ -640,6 +643,7 @@
             this.redraw();
 
         },
+
         goLeft: function () {
 
             var jump = Math.ceil(this._daysCount / 12);
@@ -649,14 +653,17 @@
             this.redraw();
 
         },
+
         reset: function () {
             this.$element.html('');
             this.removeEventHandlers();
             return this;
         },
+
         redraw: function () {
             this.reset().init();
         },
+
         getData: function () {
             return this.options.data;
         }
