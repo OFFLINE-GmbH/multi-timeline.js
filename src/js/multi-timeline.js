@@ -180,13 +180,17 @@
                     dataEntry.start = that.options.dawn;
                 }
 
-                var duration = that.getDuration(moment(dataEntry.start), moment(dataEntry.end));
+                var durationIn        = {};
 
-                var durationInDays     = duration / that.SECONDS_PER_DAY;
-                var durationInWeeks    = durationInDays / that.DAYS_PER_WEEK;
-                var startOffset        = that.getDuration(moment(that.options.start), moment(dataEntry.start));
-                var startOffsetInDays  = startOffset / that.SECONDS_PER_DAY;
-                var startOffsetInWeeks = startOffsetInDays / that.DAYS_PER_WEEK;
+                durationIn.seconds    = that.getDuration(moment(dataEntry.start), moment(dataEntry.end));
+                durationIn.days       = durationIn.seconds / that.SECONDS_PER_DAY;
+                durationIn.weeks      = durationIn.days / that.DAYS_PER_WEEK;
+
+                var startOffsetIn     = {};
+
+                startOffsetIn.seconds = that.getDuration(moment(that.options.start), moment(dataEntry.start));
+                startOffsetIn.days    = startOffsetIn.seconds / that.SECONDS_PER_DAY;
+                startOffsetIn.weeks   = startOffsetIn.days / that.DAYS_PER_WEEK;
 
                 var useLayer;
                 if (dataEntry.layer === undefined) {
@@ -199,24 +203,25 @@
 
                 // Check if timeline overflows wrapper
                 var tlOverflowLeft = '', tlOverflowRight = '';
-                if (startOffset < 0) {
-                    duration = duration + startOffset;
-                    durationInDays = duration / that.SECONDS_PER_DAY;
-                    durationInWeeks = durationInDays / that.DAYS_PER_WEEK;
-                    startOffsetInDays = startOffset = 0;
-                    tlOverflowLeft = 'tl-overflow-left';
+                if (startOffsetIn.seconds < 0) {
+                    durationIn.seconds  = durationIn.seconds + startOffsetIn.seconds;
+                    durationIn.days     = durationIn.seconds / that.SECONDS_PER_DAY;
+                    durationIn.weeks    = durationIn.days / that.DAYS_PER_WEEK;
+                    startOffsetIn.days  = startOffsetIn.seconds = 0;
+                    tlOverflowLeft      = 'tl-overflow-left';
                 }
-                var width = durationInWeeks * that._percentagePerWeek;
-                if ((startOffsetInDays + durationInDays) > that._daysCount + 1) {
+
+                var width = durationIn[that.options.xAxisUnit] * that._unitPercentage;
+                if ((startOffsetIn.days + durationIn.days) > that._daysCount + 1) {
                     tlOverflowRight = 'tl-overflow-right';
                     width = 100;
                 }
-                var unitOffset = that.options.xAxisUnit === 'days' ? startOffsetInDays : startOffsetInWeeks;
-                var left = unitOffset * that._unitPercentage;
-                if ((startOffsetInDays) > (that._daysCount + 1)) {
+
+                var left = startOffsetIn[that.options.xAxisUnit] * that._unitPercentage;
+                if ((startOffsetIn.days) > (that._daysCount + 1)) {
                     left = 100;
                 }
-                var visibility = (duration < 0) ? 'hidden' : 'visible';
+                var visibility = (durationIn.seconds < 0) ? 'hidden' : 'visible';
 
                 dataEntry.title = (dataEntry.title !== undefined) ? dataEntry.title : '';
 
@@ -233,8 +238,8 @@
                     })
                     .addClass(tlOverflowLeft + ' ' + tlOverflowRight + ' ' + ((dataEntry.class !== undefined) ? dataEntry.class : '' ))
                     .attr({
-                        "data-tl-start-offset": startOffset,
-                        "data-tl-duration": duration,
+                        "data-tl-start-offset": startOffsetIn.seconds,
+                        "data-tl-duration": durationIn.seconds,
                         "data-tl-identifier": key,
                         "data-tl-layer": useLayer,
                         "title": dataEntry.title
