@@ -244,6 +244,7 @@
                 durationIn.days     = durationIn.seconds / this.SECONDS_PER_DAY;
                 durationIn.weeks    = durationIn.days / this.DAYS_PER_WEEK;
                 startOffsetIn.days  = startOffsetIn.seconds = 0;
+
                 classes.push('tl-overflow-left');
             }
 
@@ -251,7 +252,7 @@
 
             if ((startOffsetIn.days + durationIn.days) > this._daysCount + 1) {
                 classes.push('tl-overflow-right');
-                width = 100;
+                // width = 100;
             }
 
             var left = startOffsetIn[this.options.xAxisUnit] * this._unitPercentage;
@@ -736,6 +737,7 @@
 
         reset: function () {
             this.$element.html('');
+            this._layerCount = 0;
             this.removeEventHandlers();
             return this;
         },
@@ -746,6 +748,11 @@
 
         getData: function () {
             return this.options.data;
+        },
+
+        setData: function (data) {
+            this.options.data = data;
+            this.redraw();
         }
     };
 
