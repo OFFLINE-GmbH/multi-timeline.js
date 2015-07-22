@@ -10,6 +10,7 @@
             timelineSpacing: 30,
             zoomStep: 1,
             zoom: 5,
+            flatten: false,
             maxLabelCount: 20,
             infinity: '9999-12-31',
             dawn: '0000-01-01',
@@ -46,6 +47,7 @@
         this._layerCount = 0;
         this._dragging = false;
         this._highestLayer = 1;
+        this._layerUsage = [];
 
         this.init();
 
@@ -170,7 +172,6 @@
                 this.key = key;
                 that.addTimeline(this, currentLayer);
             });
-
             return this;
         },
 
@@ -183,13 +184,29 @@
             var classes = [];
             var useLayer;
 
+
+            if (dataEntry.end === undefined || dataEntry.end == this.options.infinity) {
+                isInfinite.end = true;
+                dataEntry.end = this.options.infinity;
+            }
+            if (dataEntry.start === undefined || dataEntry.start == this.options.dawn) {
+                isInfinite.start = true;
+                dataEntry.start = this.options.dawn;
+            }
+
             if (dataEntry.layer === undefined) {
-                useLayer = this._layerCount;
+
+                useLayer = this.options.flatten !== true
+                                ? this._layerCount
+                                : this.getNextFreeLayer(moment(dataEntry.start), moment(dataEntry.end));
+
                 this._layerCount++;
                 this.options.data[dataEntry.key].layer = useLayer;
             } else {
                 useLayer = dataEntry.layer;
             }
+
+            this._layerUsage.push({layer: useLayer, start: moment(dataEntry.start), end: moment(dataEntry.end)});
 
             dataEntry.hasPhases = false;
 
@@ -202,6 +219,10 @@
                 dataEntry.start = dataEntry.phases[0].start;
                 dataEntry.end = dataEntry.phases[dataEntry.phases.length - 1].end;
 
+                useLayer = this.options.flatten !== true
+                                ? useLayer
+                                : this.getNextFreeLayer(moment(dataEntry.start), moment(dataEntry.end));
+
                 dataEntry.hasPhases = true;
 
                 dataEntry.phases.forEach(function(phase) {
@@ -210,15 +231,6 @@
                     that.addTimeline(phase);
                 });
 
-            }
-
-            if (dataEntry.end === undefined || dataEntry.end == this.options.infinity) {
-                isInfinite.end = true;
-                dataEntry.end = this.options.infinity;
-            }
-            if (dataEntry.start === undefined || dataEntry.start == this.options.dawn) {
-                isInfinite.start = true;
-                dataEntry.start = this.options.dawn;
             }
 
             var durationIn        = {};
@@ -249,14 +261,15 @@
             }
 
             var width = durationIn[this.options.xAxisUnit] * this._unitPercentage;
-
+            if(width > 100) {
+                width = 100;
+            }
             if ((startOffsetIn.days + durationIn.days) > this._daysCount + 1) {
                 classes.push('tl-overflow-right');
-                // width = 100;
             }
 
             var left = startOffsetIn[this.options.xAxisUnit] * this._unitPercentage;
-            if ((startOffsetIn.days) > (this._daysCount + 1)) {
+            if(left > 100) {
                 left = 100;
             }
             var visibility = (durationIn.seconds < 0) ? 'hidden' : 'visible';
@@ -288,6 +301,8 @@
                 .attr({
                     "data-tl-start-offset": startOffsetIn.seconds,
                     "data-tl-duration": durationIn.seconds,
+                    "data-tl-start": dataEntry.start,
+                    "data-tl-end": dataEntry.end,
                     "data-tl-identifier": dataEntry.key,
                     "data-tl-layer": useLayer,
                     "title": dataEntry.title
@@ -328,6 +343,29 @@
             if (parseInt($timeline.outerWidth()) < 140) {
                 $timeline.find('.tl-timeline__date-end').remove();
             }
+        },
+
+        getNextFreeLayer: function(start, end) {
+            var freeLayer = 0;
+            this._layerUsage.forEach(function(usage) {
+
+                if(usage.layer != freeLayer) return;
+
+                if(
+                    (
+                        (usage.start.isAfter(start) || usage.start.isSame(start))
+                        && (usage.start.isBefore(end) || usage.start.isSame(end))
+                    ) || (
+                        (usage.end.isAfter(start) || usage.end.isSame(start))
+                        && (usage.end.isBefore(end) || usage.end.isSame(end))
+                    )
+                ) {
+                    freeLayer++;
+                }
+                return false;
+            });
+
+            return freeLayer;
         },
 
         getTimelineHtml: function (dataEntry) {
@@ -717,19 +755,19 @@
 
         goRight: function () {
 
-            var jump = Math.ceil(this._daysCount / 12);
+            var jump = Math.ceil(this._unitCount / 12);
 
-            this.options.start = moment(this.options.start).add(jump, 'days').format('YYYY-MM-DD');
-            this.options.end = moment(this.options.end).add(jump, 'days').format('YYYY-MM-DD');
+            this.options.start = moment(this.options.start).add(jump, this.options.xAxisUnit).format('YYYY-MM-DD');
+            this.options.end = moment(this.options.end).add(jump, this.options.xAxisUnit).format('YYYY-MM-DD');
             this.redraw();
 
         },
 
         goLeft: function () {
 
-            var jump = Math.ceil(this._daysCount / 12);
-            this.options.start = moment(this.options.start).subtract(jump, 'days').format('YYYY-MM-DD');
-            this.options.end = moment(this.options.end).subtract(jump, 'days').format('YYYY-MM-DD');
+            var jump = Math.ceil(this._unitCount / 12);
+            this.options.start = moment(this.options.start).subtract(jump, this.options.xAxisUnit).format('YYYY-MM-DD');
+            this.options.end = moment(this.options.end).subtract(jump, this.options.xAxisUnit).format('YYYY-MM-DD');
 
             this.redraw();
 
@@ -738,6 +776,7 @@
         reset: function () {
             this.$element.html('');
             this._layerCount = 0;
+            this._layerUsage = [];
             this.removeEventHandlers();
             return this;
         },
