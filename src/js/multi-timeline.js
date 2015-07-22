@@ -10,6 +10,7 @@
             timelineSpacing: 30,
             zoomStep: 1,
             zoom: 5,
+            flatten: false,
             maxLabelCount: 20,
             infinity: '9999-12-31',
             dawn: '0000-01-01',
@@ -46,6 +47,7 @@
         this._layerCount = 0;
         this._dragging = false;
         this._highestLayer = 1;
+        this._layerUsage = [];
 
         this.init();
 
@@ -170,7 +172,6 @@
                 this.key = key;
                 that.addTimeline(this, currentLayer);
             });
-
             return this;
         },
 
@@ -179,17 +180,29 @@
             var that = this;
 
             var toMouseOut;
-            var isInfinite = {start: false, end: false};
             var classes = [];
             var useLayer;
 
+            dataEntry = this.handleStartAndEndDates(dataEntry);
+
+            var isInfinite = {
+                start: dataEntry.start == this.options.dawn,
+                end: dataEntry.end == this.options.infinity
+            };
+
             if (dataEntry.layer === undefined) {
-                useLayer = this._layerCount;
+
+                useLayer = this.options.flatten !== true
+                                ? this._layerCount
+                                : this.getNextFreeLayer(moment(dataEntry.start), moment(dataEntry.end));
+
                 this._layerCount++;
                 this.options.data[dataEntry.key].layer = useLayer;
             } else {
                 useLayer = dataEntry.layer;
             }
+
+            this._layerUsage.push({layer: useLayer, start: moment(dataEntry.start), end: moment(dataEntry.end)});
 
             dataEntry.hasPhases = false;
 
@@ -199,9 +212,6 @@
                 this.options.allDraggable = false;
                 this.options.allResizeable = false;
 
-                dataEntry.start = dataEntry.phases[0].start;
-                dataEntry.end = dataEntry.phases[dataEntry.phases.length - 1].end;
-
                 dataEntry.hasPhases = true;
 
                 dataEntry.phases.forEach(function(phase) {
@@ -210,15 +220,6 @@
                     that.addTimeline(phase);
                 });
 
-            }
-
-            if (dataEntry.end === undefined || dataEntry.end == this.options.infinity) {
-                isInfinite.end = true;
-                dataEntry.end = this.options.infinity;
-            }
-            if (dataEntry.start === undefined || dataEntry.start == this.options.dawn) {
-                isInfinite.start = true;
-                dataEntry.start = this.options.dawn;
             }
 
             var durationIn        = {};
@@ -244,38 +245,33 @@
                 durationIn.days     = durationIn.seconds / this.SECONDS_PER_DAY;
                 durationIn.weeks    = durationIn.days / this.DAYS_PER_WEEK;
                 startOffsetIn.days  = startOffsetIn.seconds = 0;
+
                 classes.push('tl-overflow-left');
             }
 
             var width = durationIn[this.options.xAxisUnit] * this._unitPercentage;
+            if(width > 100) width = 100;
 
             if ((startOffsetIn.days + durationIn.days) > this._daysCount + 1) {
                 classes.push('tl-overflow-right');
-                width = 100;
             }
 
             var left = startOffsetIn[this.options.xAxisUnit] * this._unitPercentage;
-            if ((startOffsetIn.days) > (this._daysCount + 1)) {
-                left = 100;
-            }
+            if(left > 100) left = 100;
+
             var visibility = (durationIn.seconds < 0) ? 'hidden' : 'visible';
 
             dataEntry.title = (dataEntry.title !== undefined) ? dataEntry.title : '';
 
-            if(dataEntry.class !== undefined) {
-                classes.push(dataEntry.class);
-            }
-
-            if($.isArray(dataEntry.color)) {
-                classes.push('has-color-bars');
-            }
+            if(dataEntry.class !== undefined) classes.push(dataEntry.class);
+            if($.isArray(dataEntry.color))    classes.push('has-color-bars');
 
             var styles = {
-                'width'      : width + '%',
-                'left'       : left + '%',
-                'visibility' : visibility,
-                'bottom'     : (useLayer * this.options.timelineSpacing) + 20 + 'px',
-                'z-index'    : (dataEntry.zIndex !== undefined) ? dataEntry.zIndex : 10,
+                'width'           : width + '%',
+                'left'            : left + '%',
+                'visibility'      : visibility,
+                'bottom'          : (useLayer * this.options.timelineSpacing) + 20 + 'px',
+                'z-index'         : (dataEntry.zIndex !== undefined) ? dataEntry.zIndex : 10,
                 'background-color': dataEntry.color !== undefined && ! $.isArray(dataEntry.color) ? dataEntry.color : null
             };
 
@@ -287,6 +283,8 @@
                 .attr({
                     "data-tl-start-offset": startOffsetIn.seconds,
                     "data-tl-duration": durationIn.seconds,
+                    "data-tl-start": dataEntry.start,
+                    "data-tl-end": dataEntry.end,
                     "data-tl-identifier": dataEntry.key,
                     "data-tl-layer": useLayer,
                     "title": dataEntry.title
@@ -327,6 +325,49 @@
             if (parseInt($timeline.outerWidth()) < 140) {
                 $timeline.find('.tl-timeline__date-end').remove();
             }
+        },
+
+        getNextFreeLayer: function(start, end) {
+            var freeLayer = 0;
+
+            this._layerUsage.forEach(function(usage) {
+
+                if(usage.layer != freeLayer) return;
+
+                if(
+                    (
+                           (usage.start.isAfter(start) || usage.start.isSame(start))
+                        && (usage.start.isBefore(end)  || usage.start.isSame(end))
+                    ) || (
+                           (usage.end.isAfter(start) || usage.end.isSame(start))
+                        && (usage.end.isBefore(end)  || usage.end.isSame(end))
+                    )
+                ) {
+                    freeLayer++;
+                }
+                return false;
+            });
+
+            return freeLayer;
+        },
+
+
+        handleStartAndEndDates: function(dataEntry) {
+
+            if(dataEntry.hasOwnProperty('phases') && dataEntry.phases.length > 0) {
+                dataEntry.start = dataEntry.phases[0].start;
+                dataEntry.end = dataEntry.phases[dataEntry.phases.length - 1].end;
+            }
+
+            if (dataEntry.end === undefined || dataEntry.end == this.options.infinity) {
+                dataEntry.end = this.options.infinity;
+            }
+
+            if (dataEntry.start === undefined || dataEntry.start == this.options.dawn) {
+                dataEntry.start = this.options.dawn;
+            }
+
+            return dataEntry;
         },
 
         getTimelineHtml: function (dataEntry) {
@@ -686,9 +727,8 @@
         },
 
         zoomOut: function (levels) {
-            if (levels === undefined) {
-                levels = 1;
-            }
+            if (levels === undefined) levels = 1;
+
             this.options.start = moment(this.options.start).subtract(levels * this.options.zoomStep, 'days').format('YYYY-MM-DD');
             this.options.end = moment(this.options.end).add(levels * this.options.zoomStep, 'days').format('YYYY-MM-DD');
 
@@ -699,9 +739,8 @@
         },
 
         zoomIn: function (levels) {
-            if (levels === undefined) {
-                levels = 1;
-            }
+            if (levels === undefined) levels = 1;
+
             var newStart = moment(this.options.start).add(levels * this.options.zoomStep, 'days');
             var newEnd = moment(this.options.end).subtract(levels * this.options.zoomStep, 'days');
 
@@ -716,19 +755,19 @@
 
         goRight: function () {
 
-            var jump = Math.ceil(this._daysCount / 12);
+            var jump = Math.ceil(this._unitCount / 12);
 
-            this.options.start = moment(this.options.start).add(jump, 'days').format('YYYY-MM-DD');
-            this.options.end = moment(this.options.end).add(jump, 'days').format('YYYY-MM-DD');
+            this.options.start = moment(this.options.start).add(jump, this.options.xAxisUnit).format('YYYY-MM-DD');
+            this.options.end = moment(this.options.end).add(jump, this.options.xAxisUnit).format('YYYY-MM-DD');
             this.redraw();
 
         },
 
         goLeft: function () {
 
-            var jump = Math.ceil(this._daysCount / 12);
-            this.options.start = moment(this.options.start).subtract(jump, 'days').format('YYYY-MM-DD');
-            this.options.end = moment(this.options.end).subtract(jump, 'days').format('YYYY-MM-DD');
+            var jump = Math.ceil(this._unitCount / 12);
+            this.options.start = moment(this.options.start).subtract(jump, this.options.xAxisUnit).format('YYYY-MM-DD');
+            this.options.end = moment(this.options.end).subtract(jump, this.options.xAxisUnit).format('YYYY-MM-DD');
 
             this.redraw();
 
@@ -736,6 +775,8 @@
 
         reset: function () {
             this.$element.html('');
+            this._layerCount = 0;
+            this._layerUsage = [];
             this.removeEventHandlers();
             return this;
         },
@@ -746,6 +787,11 @@
 
         getData: function () {
             return this.options.data;
+        },
+
+        setData: function (data) {
+            this.options.data = data;
+            this.redraw();
         }
     };
 

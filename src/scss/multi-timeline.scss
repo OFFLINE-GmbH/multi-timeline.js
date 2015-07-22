@@ -143,6 +143,9 @@
     }
     &.tl-has-phases {
         background: transparent;
+        &.tl-overflow-left {
+            left: 0 !important;
+        }
     }
     &.tl-point {
         width: 26px  !important;
