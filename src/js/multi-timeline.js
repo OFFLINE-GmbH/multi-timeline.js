@@ -180,11 +180,15 @@
             var that = this;
 
             var toMouseOut;
-            var isInfinite = {start: false, end: false};
             var classes = [];
             var useLayer;
 
             dataEntry = this.handleStartAndEndDates(dataEntry);
+
+            var isInfinite = {
+                start: dataEntry.start == this.options.dawn,
+                end: dataEntry.end == this.options.infinity
+            };
 
             if (dataEntry.layer === undefined) {
 
@@ -356,12 +360,10 @@
             }
 
             if (dataEntry.end === undefined || dataEntry.end == this.options.infinity) {
-                isInfinite.end = true;
                 dataEntry.end = this.options.infinity;
             }
 
             if (dataEntry.start === undefined || dataEntry.start == this.options.dawn) {
-                isInfinite.start = true;
                 dataEntry.start = this.options.dawn;
             }
 
