@@ -81,6 +81,12 @@ $('.multi-timeline').multiTimeline({
     mousewheelZoom:   true,                     // Zoom timeline on ctrl + scroll
 
     gridPrecision:    15,                       // In minutes, time gets rounded on drag
+
+    flatten:          false,                    // (experimental) Tries to display the timeline as flat as
+                                                // possible (with as few layers as possible) by filling
+                                                // out empty space. Multiple timelines may share the same layer.
+                                                // This currently breaks draggable and resizeable functions.
+
     allDraggable:     true,                     // Makes all timelines draggable (editable)
                                                 // to make only certain timelines draggable
                                                 // set to false and use the `draggable` key in
