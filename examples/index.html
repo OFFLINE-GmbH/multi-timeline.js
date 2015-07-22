@@ -146,6 +146,62 @@
 
 <!-- ============================================== -->
 
+<h2>Timeline with phases</h2>
+
+<div class="phase-timeline"></div>
+
+<script>
+    $(function () {
+        $('.phase-timeline').multiTimeline({
+            start: '2015-06-26',
+            end:   '2015-07-31',
+            data: [{
+                    'phases': [
+                        {
+                            'title': 'Phase one',
+                            'start': '2015-07-01',
+                            'end': '2015-07-05',
+                            'color': ['#333', '#444', '#555']
+                        },
+                        {
+                            'title': 'Phase two',
+                            'start': '2015-07-08',
+                            'end': '2015-07-14',
+                            'color': '#aaa'
+                        },
+                        {
+                            'title': 'Phase three',
+                            'start': '2015-07-20',
+                            'end': '2015-07-20',
+                        }
+                    ]
+                },
+                {
+                    'phases': [
+                        {
+                            'title': 'Phase one',
+                            'start': '2015-07-04',
+                            'end': '2015-07-08',
+                        },
+                        {
+                            'title': 'Phase two',
+                            'start': '2015-07-10',
+                            'end': '2015-07-12',
+                        },
+                        {
+                            'title': 'Phase three',
+                            'start': '2015-07-12',
+                            'end': '2015-07-12',
+                        }
+                    ]
+                },
+            ]
+        });
+    })
+</script>
+
+<!-- ============================================== -->
+
 <h2>Timeline with controls</h2>
 
 <div class="controls-timeline"></div>

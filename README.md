@@ -81,6 +81,12 @@ $('.multi-timeline').multiTimeline({
     mousewheelZoom:   true,                     // Zoom timeline on ctrl + scroll
 
     gridPrecision:    15,                       // In minutes, time gets rounded on drag
+
+    flatten:          false,                    // (experimental) Tries to display the timeline as flat as
+                                                // possible (with as few layers as possible) by filling
+                                                // out empty space. Multiple timelines may share the same layer.
+                                                // This currently breaks draggable and resizeable functions.
+
     allDraggable:     true,                     // Makes all timelines draggable (editable)
                                                 // to make only certain timelines draggable
                                                 // set to false and use the `draggable` key in
@@ -114,7 +120,9 @@ Each timeline is specified as an object and can receive the following attributes
     title:  'Title of your timeline',
     start:  '2015-02-22 18:00:00',      // ISO_8601 date (with or without time)
     end:    '2015-02-24',               // ISO_8601 date (with or without time)
-    color:  '#f00',                     // background-color, is set via inline style attribute
+    color:  '#f00',                     // background-color, is set via inline style attribute if string
+                                        // If you provide an array of colors, all specified values
+                                        // are applied using embedded colored flexbox containers.
     class:  'important',                // Additional class for .tl-timeline elements
     zIndex: 10,                         // z-index for this timeline (to manage overlaps)
 
@@ -128,6 +136,10 @@ Each timeline is specified as an object and can receive the following attributes
     resizeable: true                    // Use when `allResizeable` is set to `false`
                                         // makes this specific timeline resizeable
 
+    phases: []                          // (experimental) Provide multiple start/end dates for a
+                                        // timeline. The timeline becomes read only since edit support
+                                        // for phases is not yet supported. For a working example see
+                                        // exampes/index.html or the demo website.
 }
 ```
 
