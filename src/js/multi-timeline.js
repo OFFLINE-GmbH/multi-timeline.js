@@ -184,15 +184,7 @@
             var classes = [];
             var useLayer;
 
-
-            if (dataEntry.end === undefined || dataEntry.end == this.options.infinity) {
-                isInfinite.end = true;
-                dataEntry.end = this.options.infinity;
-            }
-            if (dataEntry.start === undefined || dataEntry.start == this.options.dawn) {
-                isInfinite.start = true;
-                dataEntry.start = this.options.dawn;
-            }
+            dataEntry = this.handleStartAndEndDates(dataEntry);
 
             if (dataEntry.layer === undefined) {
 
@@ -215,13 +207,6 @@
                 classes.push('tl-has-phases');
                 this.options.allDraggable = false;
                 this.options.allResizeable = false;
-
-                dataEntry.start = dataEntry.phases[0].start;
-                dataEntry.end = dataEntry.phases[dataEntry.phases.length - 1].end;
-
-                useLayer = this.options.flatten !== true
-                                ? useLayer
-                                : this.getNextFreeLayer(moment(dataEntry.start), moment(dataEntry.end));
 
                 dataEntry.hasPhases = true;
 
@@ -261,35 +246,28 @@
             }
 
             var width = durationIn[this.options.xAxisUnit] * this._unitPercentage;
-            if(width > 100) {
-                width = 100;
-            }
+            if(width > 100) width = 100;
+
             if ((startOffsetIn.days + durationIn.days) > this._daysCount + 1) {
                 classes.push('tl-overflow-right');
             }
 
             var left = startOffsetIn[this.options.xAxisUnit] * this._unitPercentage;
-            if(left > 100) {
-                left = 100;
-            }
+            if(left > 100) left = 100;
+
             var visibility = (durationIn.seconds < 0) ? 'hidden' : 'visible';
 
             dataEntry.title = (dataEntry.title !== undefined) ? dataEntry.title : '';
 
-            if(dataEntry.class !== undefined) {
-                classes.push(dataEntry.class);
-            }
-
-            if($.isArray(dataEntry.color)) {
-                classes.push('has-color-bars');
-            }
+            if(dataEntry.class !== undefined) classes.push(dataEntry.class);
+            if($.isArray(dataEntry.color))    classes.push('has-color-bars');
 
             var styles = {
-                'width'      : width + '%',
-                'left'       : left + '%',
-                'visibility' : visibility,
-                'bottom'     : (useLayer * this.options.timelineSpacing) + 20 + 'px',
-                'z-index'    : (dataEntry.zIndex !== undefined) ? dataEntry.zIndex : 10,
+                'width'           : width + '%',
+                'left'            : left + '%',
+                'visibility'      : visibility,
+                'bottom'          : (useLayer * this.options.timelineSpacing) + 20 + 'px',
+                'z-index'         : (dataEntry.zIndex !== undefined) ? dataEntry.zIndex : 10,
                 'background-color': dataEntry.color !== undefined && ! $.isArray(dataEntry.color) ? dataEntry.color : null
             };
 
@@ -347,17 +325,18 @@
 
         getNextFreeLayer: function(start, end) {
             var freeLayer = 0;
+
             this._layerUsage.forEach(function(usage) {
 
                 if(usage.layer != freeLayer) return;
 
                 if(
                     (
-                        (usage.start.isAfter(start) || usage.start.isSame(start))
-                        && (usage.start.isBefore(end) || usage.start.isSame(end))
+                           (usage.start.isAfter(start) || usage.start.isSame(start))
+                        && (usage.start.isBefore(end)  || usage.start.isSame(end))
                     ) || (
-                        (usage.end.isAfter(start) || usage.end.isSame(start))
-                        && (usage.end.isBefore(end) || usage.end.isSame(end))
+                           (usage.end.isAfter(start) || usage.end.isSame(start))
+                        && (usage.end.isBefore(end)  || usage.end.isSame(end))
                     )
                 ) {
                     freeLayer++;
@@ -366,6 +345,27 @@
             });
 
             return freeLayer;
+        },
+
+
+        handleStartAndEndDates: function(dataEntry) {
+
+            if(dataEntry.hasOwnProperty('phases') && dataEntry.phases.length > 0) {
+                dataEntry.start = dataEntry.phases[0].start;
+                dataEntry.end = dataEntry.phases[dataEntry.phases.length - 1].end;
+            }
+
+            if (dataEntry.end === undefined || dataEntry.end == this.options.infinity) {
+                isInfinite.end = true;
+                dataEntry.end = this.options.infinity;
+            }
+
+            if (dataEntry.start === undefined || dataEntry.start == this.options.dawn) {
+                isInfinite.start = true;
+                dataEntry.start = this.options.dawn;
+            }
+
+            return dataEntry;
         },
 
         getTimelineHtml: function (dataEntry) {
@@ -725,9 +725,8 @@
         },
 
         zoomOut: function (levels) {
-            if (levels === undefined) {
-                levels = 1;
-            }
+            if (levels === undefined) levels = 1;
+
             this.options.start = moment(this.options.start).subtract(levels * this.options.zoomStep, 'days').format('YYYY-MM-DD');
             this.options.end = moment(this.options.end).add(levels * this.options.zoomStep, 'days').format('YYYY-MM-DD');
 
@@ -738,9 +737,8 @@
         },
 
         zoomIn: function (levels) {
-            if (levels === undefined) {
-                levels = 1;
-            }
+            if (levels === undefined) levels = 1;
+
             var newStart = moment(this.options.start).add(levels * this.options.zoomStep, 'days');
             var newEnd = moment(this.options.end).subtract(levels * this.options.zoomStep, 'days');
 
