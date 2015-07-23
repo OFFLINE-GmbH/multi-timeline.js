@@ -355,8 +355,8 @@
         handleStartAndEndDates: function(dataEntry) {
 
             if(dataEntry.hasOwnProperty('phases') && dataEntry.phases.length > 0) {
-                dataEntry.start = dataEntry.phases[0].start;
-                dataEntry.end = dataEntry.phases[dataEntry.phases.length - 1].end;
+                dataEntry.start = this.getEarliestDate(dataEntry.phases);
+                dataEntry.end   = this.getLatestDate(dataEntry.phases);
             }
 
             if (dataEntry.end === undefined || dataEntry.end == this.options.infinity) {
@@ -368,6 +368,39 @@
             }
 
             return dataEntry;
+        },
+
+        getEarliestDate: function(phases) {
+
+            var earliestDate = moment(this.options.infinity);
+            phases.forEach(function(phase) {
+
+                var start = moment(phase.start);
+                if(start.isBefore(earliestDate)) {
+                    earliestDate = start;
+                }
+
+            });
+            console.log('earliest date is ', earliestDate);
+            return earliestDate;
+
+        },
+
+        getLatestDate: function(phases) {
+
+            var latestDate = moment(this.options.dawn);
+            phases.forEach(function(phase) {
+
+                var end = moment(phase.end);
+                if(end.isAfter(latestDate)) {
+                    latestDate = end;
+                }
+
+            });
+
+            console.log('latest date is ', latestDate);
+
+            return latestDate;
         },
 
         getTimelineHtml: function (dataEntry) {
