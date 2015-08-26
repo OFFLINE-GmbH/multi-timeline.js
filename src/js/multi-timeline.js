@@ -328,11 +328,9 @@
         },
 
         getNextFreeLayer: function(start, end) {
-            var freeLayer = 0;
+            var blockedLayers = [];
 
             this._layerUsage.forEach(function(usage) {
-
-                if(usage.layer != freeLayer) return;
 
                 if(
                     (
@@ -341,16 +339,23 @@
                     ) || (
                            (usage.end.isAfter(start) || usage.end.isSame(start))
                         && (usage.end.isBefore(end)  || usage.end.isSame(end))
+                    ) || (
+                           (usage.start.isBefore(start) || usage.start.isSame(start))
+                        && (usage.end.isAfter(end)  || usage.end.isSame(end))
                     )
                 ) {
-                    freeLayer++;
+                    blockedLayers.push(usage.layer);
                 }
                 return false;
-            });
+            }); 
+
+            var freeLayer = 0;
+            while($.inArray(freeLayer, blockedLayers) !== -1) {
+                freeLayer++;
+            }
 
             return freeLayer;
         },
-
 
         handleStartAndEndDates: function(dataEntry) {
 
@@ -381,7 +386,6 @@
                 }
 
             });
-            console.log('earliest date is ', earliestDate);
             return earliestDate;
 
         },
@@ -397,8 +401,6 @@
                 }
 
             });
-
-            console.log('latest date is ', latestDate);
 
             return latestDate;
         },
