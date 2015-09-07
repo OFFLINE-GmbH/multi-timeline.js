@@ -48,6 +48,7 @@
         this._dragging = false;
         this._highestLayer = 1;
         this._layerUsage = [];
+        this._addTimelinesArray = [];
 
         this.init();
 
@@ -122,6 +123,8 @@
             var timeUnitCount = -1;
             var label = '';
 
+            var units = [];
+
             while ( ! current.isAfter(end, unit)) {
                 timeUnitCount++;
                 current = current.add(1, unit);
@@ -133,13 +136,13 @@
                     label = '';
                 }
                 var isToday = current.isSame(new Date(), unit);
-                this.addTimeUnit($time, label, (timeUnitCount + 1), isToday);
-
+                units.push(this.createTimeUnit(label, (timeUnitCount + 1), isToday));
             }
-            $time.appendTo(this.$element);
+
+            $time.append(units.reverse()).appendTo(this.$element);
         },
 
-        addTimeUnit: function ($time, label, position, isToday) {
+        createTimeUnit: function (label, position, isToday) {
             if (moment.isMoment(label)) {
                 label = label.format(this.options.xAxisDateFormat);
             }
@@ -152,7 +155,8 @@
             if (isToday) {
                 $unit.addClass('is-today');
             }
-            $unit.appendTo($time);
+
+            return $unit;
         },
 
         getDuration: function (from, to) {
@@ -172,6 +176,9 @@
                 this.key = key;
                 that.addTimeline(this, currentLayer);
             });
+
+            this.$element.prepend(this._addTimelinesArray.reverse());
+
             return this;
         },
 
@@ -320,7 +327,8 @@
                 $timeline.addClass('is-infinite-end');
             }
 
-            $timeline.prependTo(this.$element);
+            // $timeline.prependTo(this.$element);
+            this._addTimelinesArray.push($timeline);
 
             if (parseInt($timeline.outerWidth()) < 140) {
                 $timeline.find('.tl-timeline__date-end').remove();
@@ -812,6 +820,7 @@
             this.$element.html('');
             this._layerCount = 0;
             this._layerUsage = [];
+            this._addTimelinesArray = [];
             this.removeEventHandlers();
             return this;
         },
