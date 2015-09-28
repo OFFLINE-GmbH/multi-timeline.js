@@ -143,8 +143,9 @@
         },
 
         createTimeUnit: function (label, position, isToday) {
+
             if (moment.isMoment(label)) {
-                label = label.format(this.options.xAxisDateFormat);
+                label = this.getLabelText(label);
             }
 
             var $unit = $('<li class="tl-time__unit">')
@@ -157,6 +158,23 @@
             }
 
             return $unit;
+        },
+
+        getLabelText: function(label) {
+
+            var format = this.options.xAxisDateFormat;
+            if(format.indexOf('\n') === -1) {
+                return label.format(format);
+            }
+
+            var parts = format.split('\n');
+            var labels = [];
+
+            parts.forEach(function(format) {
+                labels.push(label.format(format));
+            });
+
+            return labels.join('<br />');
         },
 
         getDuration: function (from, to) {
