@@ -345,7 +345,7 @@
                 $timeline.addClass('is-infinite-end');
             }
 
-            // $timeline.prependTo(this.$element);
+            $timeline.prependTo(this.$element);
             this._addTimelinesArray.push($timeline);
 
             if (parseInt($timeline.outerWidth()) < 140) {
